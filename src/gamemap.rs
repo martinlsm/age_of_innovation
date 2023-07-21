@@ -47,7 +47,6 @@ fn parse_row(input: &str, row_name: char) -> Result<Vec<Hex>> {
 
     let row: Result<Vec<Hex>> = input
         .split(",")
-        .inspect(|s| println!("'{}'", s))
         .map(|x| {
             match x {
                 "I" => Ok(TerrainType::WATER),
