@@ -1,4 +1,4 @@
-use std::{error::Error, fs};
+use std::fs;
 
 use crate::{error, Result};
 
@@ -12,6 +12,7 @@ pub struct Hex {
     pub terrain: TerrainType,
 }
 
+#[derive(PartialEq)]
 pub enum TerrainType {
     WATER,
     YELLOW,
@@ -23,29 +24,16 @@ pub enum TerrainType {
     RED,
 }
 
-fn terrain_letter(terrain: &TerrainType) -> char {
-    match terrain {
-        TerrainType::WATER => 'I',
-        TerrainType::YELLOW => 'Y',
-        TerrainType::BROWN => 'U',
-        TerrainType::BLACK => 'K',
-        TerrainType::BLUE => 'B',
-        TerrainType::GREEN => 'G',
-        TerrainType::GRAY => 'S',
-        TerrainType::RED => 'R',
-    }
-}
-
 fn open_map_from_file(path: &str) -> Result<Vec<Vec<Hex>>> {
     let input = fs::read_to_string(path)?;
 
     let mut row_name_gen = "ABCDEFGHIJ".chars();
     let mut res: Vec<Vec<Hex>> = Vec::with_capacity(MAP_HEIGHT);
 
-    for row in input.trim().split(';') {
+    for row in input.split('\n') {
         let row_name = match row_name_gen.next() {
             Some(x) => x,
-            None => return Err(error::create_error(&format!("Too many rows"))),
+            None => return Err(error::create_error("Too many rows")),
         };
         let hexes: Vec<Hex> = parse_row(&row, row_name)?;
         res.push(hexes);
@@ -94,115 +82,81 @@ fn parse_row(input: &str, row_name: char) -> Result<Vec<Hex>> {
     })
 }
 
-/*
-    for row in input.split(";") {
-        let mut hexes: Vec<Hex> = Vec::with_capacity(MAP_WIDTH);
-
-        let mut hex_col_names = 1..14;
-        let next_row_name = hex_row_names.next().unwrap(); // XXX
-
-        for terrain in row.split(",") {
-            let terrain = terrain.trim();
-
-            // Hexes should be notated as a single letter
-            if terrain.len() != 1 {
-                return Err(error::create_error(&format!(
-                    "Too many symbols between ',' delimiter (expects 1, got {})",
-                    terrain.len()
-                )));
-            }
-
-            let terrain = terrain.chars().next().unwrap();
-
-            // Water hexes must be specially handled since they have no name.
-            if terrain == terrain_letter(&TerrainType::WATER) {
-                hexes.push(Hex {
-                    name : None,
-                    terrain : TerrainType::WATER,
-                });
-
-                continue;
-            }
-
-            // It is a non-water hex; figure out its name
-            let next_col_name = match hex_col_names.next() {
-                Some(x) => x,
-                None => return Err(error::create_error("Too many hexes on a single row")),
-            };
-
-            match terrain {
-                'I' => hexes.push(Hex {
-                    name: String::from(next_row_name) + &next_col_name.to_string(), // XXX: Do not proceed naming here
-                    terrain: TerrainType::WATER,
-                }),
-                _ => {
-                    return Err(error::create_error(&format!(
-                        "Unexpected symbol '{}'",
-                        terrain
-                    )))
-                }
-            }
-        }
-
-        res.push(hexes);
-    }
-
-    Err(error::create_error("msg"))
-}
-*/
-
-/*
-fn open_map_from_file(path: &str) -> Result<Vec<Vec<Hex>>> {
-    let input = fs::read_to_string(path)?;
-    let mut expect_comma = false;
-    let mut expect_semilicon_counter = MAP_WIDTH;
-    let mut res: Vec<Vec<Hex>> = Vec::new();
-
-    for c in input.chars() {
-        if c == ',' {  // Column delimiter
-            if expect_comma {
-                expect_comma = false;
-            } else {
-                return Err(error::create_error(&format!("Expected ',' but got '{}'", c)));
-            }
-        } else if c == ';' {  // Row delimiter
-            if expect_semilicon_counter == 0 {
-                expect_semilicon_counter = MAP_WIDTH;
-            } else {
-                return Err(error::create_error(&format!("Expected ';' but got '{}'", c)));
-            }
-        } else if "IYUKBGSR".contains(c) {
-            match c {
-            }
-
-        } else {
-            return Err(error::create_error(&format!("Got unexpected symbol '{}'", c)));
-        }
-    }
-
-    let mut grid = Vec::with_capacity(MAP_HEIGHT);
-    for _ in 0..MAP_HEIGHT {
-        let mut row = Vec::with_capacity(MAP_WIDTH);
-        for _ in 0..MAP_WIDTH {
-            row.push(Hex {
-                name: String::from("A1"),
-                terrain: TerrainType::WATER,
-            });
-        }
-        grid.push(row);
-    }
-
-    Ok(grid)
-}
-*/
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use itertools::Itertools;
 
     #[test]
     fn import_basemap() -> Result<()> {
-        open_map_from_file("assets/base_map.gamemap")?;
+        let map = open_map_from_file("assets/base_map.gamemap")?;
+
+        assert_eq!(
+            (0..MAP_HEIGHT)
+                .cartesian_product(0..MAP_WIDTH)
+                .filter(|&(r, c)| map[r][c].terrain == TerrainType::WATER)
+                .count(),
+            36
+        );
+        assert_eq!(
+            (0..MAP_HEIGHT)
+                .cartesian_product(0..MAP_WIDTH)
+                .filter(|&(r, c)| map[r][c].terrain == TerrainType::YELLOW)
+                .count(),
+            11
+        );
+        assert_eq!(
+            (0..MAP_HEIGHT)
+                .cartesian_product(0..MAP_WIDTH)
+                .filter(|&(r, c)| map[r][c].terrain == TerrainType::BROWN)
+                .count(),
+            12
+        );
+        assert_eq!(
+            (0..MAP_HEIGHT)
+                .cartesian_product(0..MAP_WIDTH)
+                .filter(|&(r, c)| map[r][c].terrain == TerrainType::BLACK)
+                .count(),
+            12
+        );
+        assert_eq!(
+            (0..MAP_HEIGHT)
+                .cartesian_product(0..MAP_WIDTH)
+                .filter(|&(r, c)| map[r][c].terrain == TerrainType::BLUE)
+                .count(),
+            12
+        );
+        assert_eq!(
+            (0..MAP_HEIGHT)
+                .cartesian_product(0..MAP_WIDTH)
+                .filter(|&(r, c)| map[r][c].terrain == TerrainType::GREEN)
+                .count(),
+            11
+        );
+        assert_eq!(
+            (0..MAP_HEIGHT)
+                .cartesian_product(0..MAP_WIDTH)
+                .filter(|&(r, c)| map[r][c].terrain == TerrainType::GRAY)
+                .count(),
+            11
+        );
+        assert_eq!(
+            (0..MAP_HEIGHT)
+                .cartesian_product(0..MAP_WIDTH)
+                .filter(|&(r, c)| map[r][c].terrain == TerrainType::GRAY)
+                .count(),
+            11
+        );
+        assert_eq!(
+            (0..MAP_HEIGHT)
+                .cartesian_product(0..MAP_WIDTH)
+                .filter(|&(r, c)| map[r][c].terrain == TerrainType::RED)
+                .count(),
+            12
+        );
+
+        assert!(map.len() == MAP_HEIGHT);
+        assert!(map.into_iter().all(|row| row.len() == MAP_WIDTH));
 
         Ok(())
     }
