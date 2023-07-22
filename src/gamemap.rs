@@ -1,6 +1,6 @@
 use std::fs;
 
-use crate::{error, Result};
+use crate::{error::create_error, Result};
 
 pub const MAP_HEIGHT: usize = 9;
 pub const MAP_WIDTH: usize = 13;
@@ -33,7 +33,7 @@ fn open_map_from_file(path: &str) -> Result<Vec<Vec<Hex>>> {
     for row in input.split('\n') {
         let row_name = match row_name_gen.next() {
             Some(x) => x,
-            None => return Err(error::create_error("Too many rows")),
+            None => return Err(create_error("Too many rows")),
         };
         let hexes: Vec<Hex> = parse_row(&row, row_name)?;
         res.push(hexes);
@@ -57,7 +57,7 @@ fn parse_row(input: &str, row_name: char) -> Result<Vec<Hex>> {
                 "G" => Ok(TerrainType::GREEN),
                 "S" => Ok(TerrainType::GRAY),
                 "R" => Ok(TerrainType::RED),
-                x => return Err(error::create_error(&format!("Invalid symbol '{}'", x))),
+                x => return Err(create_error(&format!("Invalid symbol '{}'", x))),
             }
             .and_then(|t| match t {
                 TerrainType::WATER => Ok(Hex {
@@ -74,7 +74,7 @@ fn parse_row(input: &str, row_name: char) -> Result<Vec<Hex>> {
 
     row.and_then(|v| match v.len() {
         MAP_WIDTH => Ok(v),
-        _ => Err(error::create_error(&format!(
+        _ => Err(create_error(&format!(
             "Incorrect width of map at row '{}' (expects {})",
             row_name, MAP_WIDTH
         ))),
