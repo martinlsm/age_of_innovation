@@ -1,6 +1,7 @@
 // Public modules
 pub mod error;
 pub mod gamemap;
+pub mod power;
 
 // Private modules
 
