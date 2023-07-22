@@ -24,7 +24,7 @@ pub enum TerrainType {
     RED,
 }
 
-fn open_map_from_file(path: &str) -> Result<Vec<Vec<Hex>>> {
+pub fn open_map_from_file(path: &str) -> Result<Vec<Vec<Hex>>> {
     let input = fs::read_to_string(path)?;
 
     let mut row_name_gen = "ABCDEFGHIJ".chars();

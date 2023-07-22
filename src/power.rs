@@ -8,13 +8,13 @@ pub struct PowerBowls {
 }
 
 impl PowerBowls {
-    fn new(bowl1_amount: u32, bowl2_amount: u32, bowl3_amount: u32) -> Self {
+    pub fn new(bowl1_amount: u32, bowl2_amount: u32, bowl3_amount: u32) -> Self {
         PowerBowls {
             bowls: [bowl1_amount, bowl2_amount, bowl3_amount],
         }
     }
 
-    fn gain(&mut self, amount: u32) -> u32 {
+    pub fn gain(&mut self, amount: u32) -> u32 {
         let mut total_gained = 0;
 
         let b1_to_b2_gain = min(self.bowls[0], amount);
@@ -30,7 +30,18 @@ impl PowerBowls {
         total_gained
     }
 
-    fn burn(&mut self, amount: u32) -> Result<()> {
+    pub fn spend(&mut self, amount: u32) -> Result<()> {
+        if self.bowls[2] < amount {
+            return Err(create_error("Not enough power on bowl 3"));
+        }
+
+        self.bowls[0] += amount;
+        self.bowls[2] -= amount;
+
+        Ok(())
+    }
+
+    pub fn burn(&mut self, amount: u32) -> Result<()> {
         if self.bowls[1] < amount * 2 {
             return Err(create_error("Not enough power on bowl 2"));
         }
@@ -41,11 +52,11 @@ impl PowerBowls {
         Ok(())
     }
 
-    fn gain_limit(&self) -> u32 {
+    pub fn gain_limit(&self) -> u32 {
         2 * self.bowls[0] + self.bowls[1]
     }
 
-    fn amount(&self, bowl: usize) -> u32 {
+    pub fn amount(&self, bowl: usize) -> u32 {
         self.bowls[bowl - 1]
     }
 }
@@ -133,6 +144,32 @@ mod tests {
         let mut bowls = PowerBowls::new(3, 7, 2);
 
         assert!(bowls.burn(4).is_err());
+
+        Ok(())
+    }
+
+    #[test]
+    fn spend_power() -> Result<()> {
+        let mut bowls = PowerBowls::new(4, 4, 4);
+
+        bowls.spend(3)?;
+
+        assert_eq!(bowls.amount(3), 1);
+        assert_eq!(bowls.amount(2), 4);
+        assert_eq!(bowls.amount(1), 7);
+
+        Ok(())
+    }
+
+    #[test]
+    fn spend_while_not_having_enough_power() -> Result<()> {
+        let mut bowls = PowerBowls::new(4, 4, 4);
+
+        assert!(bowls.spend(5).is_err());
+
+        assert_eq!(bowls.amount(3), 4);
+        assert_eq!(bowls.amount(2), 4);
+        assert_eq!(bowls.amount(1), 4);
 
         Ok(())
     }
