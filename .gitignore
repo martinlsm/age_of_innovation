@@ -1,2 +1,4 @@
 /target
+/aoi_backend/target
+/aoi_server/target
 /Cargo.lock
