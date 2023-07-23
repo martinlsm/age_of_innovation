@@ -61,6 +61,7 @@ impl PowerBowls {
     }
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
 
