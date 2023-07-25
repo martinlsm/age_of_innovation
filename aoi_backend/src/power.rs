@@ -1,10 +1,21 @@
 use std::cmp::min;
 
 use crate::error::create_error;
+use crate::resources::{Books, Coins, Scholars, Tools};
 use crate::Result;
 
+#[derive(Clone, Copy)]
 pub struct PowerBowls {
     bowls: [u32; 3],
+}
+
+pub struct PowerConversion {
+    state_before: PowerBowls,
+    state_after: PowerBowls,
+    books_gained: Books,
+    scholars_gained: Scholars,
+    tools_gained: Tools,
+    coins_gained: Coins,
 }
 
 impl PowerBowls {
@@ -32,22 +43,11 @@ impl PowerBowls {
 
     pub fn spend(&mut self, amount: u32) -> Result<()> {
         if self.bowls[2] < amount {
-            return Err(create_error("Not enough power on bowl 3"));
+            return Err(create_error("Not enough power in bowl 3"));
         }
 
         self.bowls[0] += amount;
         self.bowls[2] -= amount;
-
-        Ok(())
-    }
-
-    pub fn burn(&mut self, amount: u32) -> Result<()> {
-        if self.bowls[1] < amount * 2 {
-            return Err(create_error("Not enough power on bowl 2"));
-        }
-
-        self.bowls[1] -= amount * 2;
-        self.bowls[2] += amount;
 
         Ok(())
     }
@@ -59,6 +59,66 @@ impl PowerBowls {
     pub fn amount(&self, bowl: usize) -> u32 {
         self.bowls[bowl - 1]
     }
+}
+
+impl PowerConversion {
+    pub fn convert_to_coins(&mut self, amount: Coins) -> Result<()> {
+        self.state_after.spend(amount)?;
+        self.coins_gained += amount;
+
+        Ok(())
+    }
+
+    pub fn convert_to_tools(&mut self, amount: Tools) -> Result<()> {
+        self.state_after.spend(3 * amount)?;
+        self.tools_gained += amount;
+
+        Ok(())
+    }
+
+    pub fn convert_to_scholars(&mut self, amount: Scholars) -> Result<()> {
+        self.state_after.spend(5 * amount)?;
+        self.scholars_gained += amount;
+
+        Ok(())
+    }
+
+    pub fn convert_to_books(&mut self, amount: Books) -> Result<()> {
+        self.state_after.spend(5 * amount)?;
+        self.books_gained += amount;
+
+        Ok(())
+    }
+
+    pub fn burn_power(&mut self, amount: u32) -> Result<()> {
+        if self.state_after.bowls[1] < amount * 2 {
+            return Err(create_error("Not enough power in bowl 2"));
+        }
+
+        self.state_after.bowls[1] -= amount * 2;
+        self.state_after.bowls[2] += amount;
+
+        Ok(())
+    }
+}
+
+pub fn start_conversion(bowls: PowerBowls) -> PowerConversion {
+    PowerConversion {
+        state_before: bowls,
+        state_after: bowls.clone(),
+        books_gained: 0,
+        scholars_gained: 0,
+        tools_gained: 0,
+        coins_gained: 0,
+    }
+}
+
+pub fn finish_conversion(conv: PowerConversion) -> (PowerBowls, Books, Scholars, Tools, Coins) {
+    (conv.state_after, conv.books_gained, conv.scholars_gained, conv.tools_gained, conv.coins_gained)
+}
+
+pub fn abort_conversion(conv: PowerConversion) -> PowerBowls {
+    conv.state_before
 }
 
 #[cfg(test)]
@@ -129,9 +189,11 @@ mod tests {
 
     #[test]
     fn burn_power() -> Result<()> {
-        let mut bowls = PowerBowls::new(4, 4, 4);
+        let bowls = PowerBowls::new(4, 4, 4);
+        let mut conv = start_conversion(bowls);
 
-        bowls.burn(2)?;
+        conv.burn_power(2)?;
+        let (bowls, _, _, _, _) = finish_conversion(conv);
 
         assert_eq!(bowls.amount(3), 6);
         assert_eq!(bowls.amount(2), 0);
@@ -142,9 +204,10 @@ mod tests {
 
     #[test]
     fn try_burning_more_power_than_possible() -> Result<()> {
-        let mut bowls = PowerBowls::new(3, 7, 2);
+        let bowls = PowerBowls::new(3, 7, 2);
+        let mut conv = start_conversion(bowls);
 
-        assert!(bowls.burn(4).is_err());
+        assert!(conv.burn_power(4).is_err());
 
         Ok(())
     }
@@ -171,6 +234,49 @@ mod tests {
         assert_eq!(bowls.amount(3), 4);
         assert_eq!(bowls.amount(2), 4);
         assert_eq!(bowls.amount(1), 4);
+
+        Ok(())
+    }
+
+    #[test]
+    fn conversion_of_resources() -> Result<()> {
+        let bowls = PowerBowls::new(0, 5, 25);
+        let mut conv = start_conversion(bowls);
+
+        conv.convert_to_coins(1)?; // 1 power
+        conv.convert_to_books(2)?; // 10 power
+        conv.convert_to_tools(2)?; // 6 power
+        conv.convert_to_coins(2)?; // 2 power
+        conv.convert_to_scholars(1)?; // 5 power
+        let (bowls, books, scholars, tools, coins) = finish_conversion(conv);
+
+        assert_eq!(bowls.amount(3), 1);
+        assert_eq!(bowls.amount(2), 5);
+        assert_eq!(bowls.amount(1), 24);
+        assert_eq!(books, 2);
+        assert_eq!(scholars, 1);
+        assert_eq!(tools, 2);
+        assert_eq!(coins, 3);
+
+        Ok(())
+    }
+
+    #[test]
+    fn burn_and_convert_power() -> Result<()> {
+        let bowls = PowerBowls::new(0, 5, 1);
+        let mut conv = start_conversion(bowls);
+
+        conv.burn_power(2)?;
+        conv.convert_to_tools(1)?;
+        let (bowls, books, scholars, tools, coins) = finish_conversion(conv);
+
+        assert_eq!(bowls.amount(3), 0);
+        assert_eq!(bowls.amount(2), 1);
+        assert_eq!(bowls.amount(1), 3);
+        assert_eq!(books, 0);
+        assert_eq!(scholars, 0);
+        assert_eq!(tools, 1);
+        assert_eq!(coins, 0);
 
         Ok(())
     }

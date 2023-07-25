@@ -2,6 +2,7 @@
 pub mod error;
 pub mod gamemap;
 pub mod power;
+pub mod resources;
 
 // Private modules
 
