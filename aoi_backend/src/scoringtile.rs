@@ -282,7 +282,8 @@ mod tests {
     use super::*;
     #[test]
     fn scoring_tiles_for_new_game_are_6() {
-        for _ in 0..100 {  // Run multiple times since randomness is involved.
+        for _ in 0..100 {
+            // Run multiple times since randomness is involved.
             let tiles = new_game_random_tiles();
             assert_eq!(tiles.len(), 6);
         }
@@ -290,7 +291,8 @@ mod tests {
 
     #[test]
     fn scoring_tiles_no_duplicates() {
-        for _ in 0..100 {  // Run multiple times since randomness is involved.
+        for _ in 0..100 {
+            // Run multiple times since randomness is involved.
             let tiles = new_game_random_tiles();
             let mut set = HashSet::new();
             tiles.into_iter().all(|x| set.insert(x));

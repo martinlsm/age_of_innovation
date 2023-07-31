@@ -3,8 +3,6 @@ use crate::{error::create_error, Result};
 pub const MAP_HEIGHT: usize = 9;
 pub const MAP_WIDTH: usize = 13;
 
-pub type HexGrid = Vec<Vec<Hex>>;
-
 pub struct Hex {
     pub name: Option<String>,
     pub terrain: TerrainType,

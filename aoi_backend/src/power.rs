@@ -1,7 +1,7 @@
 use std::cmp::min;
 
-use crate::error::create_error;
 use crate::common::{Books, Coins, Scholars, Tools};
+use crate::error::create_error;
 use crate::Result;
 
 #[derive(Clone, Copy)]
@@ -114,7 +114,13 @@ pub fn start_conversion(bowls: PowerBowls) -> PowerConversion {
 }
 
 pub fn finish_conversion(conv: PowerConversion) -> (PowerBowls, Books, Scholars, Tools, Coins) {
-    (conv.state_after, conv.books_gained, conv.scholars_gained, conv.tools_gained, conv.coins_gained)
+    (
+        conv.state_after,
+        conv.books_gained,
+        conv.scholars_gained,
+        conv.tools_gained,
+        conv.coins_gained,
+    )
 }
 
 pub fn abort_conversion(conv: PowerConversion) -> PowerBowls {
