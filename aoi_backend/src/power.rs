@@ -1,7 +1,7 @@
 use std::cmp::min;
 
 use crate::error::create_error;
-use crate::resources::{Books, Coins, Scholars, Tools};
+use crate::common::{Books, Coins, Scholars, Tools};
 use crate::Result;
 
 #[derive(Clone, Copy)]
@@ -63,29 +63,29 @@ impl PowerBowls {
 
 impl PowerConversion {
     pub fn convert_to_coins(&mut self, amount: Coins) -> Result<()> {
-        self.state_after.spend(amount)?;
-        self.coins_gained += amount;
+        self.state_after.spend(amount.0)?;
+        self.coins_gained.0 += amount.0;
 
         Ok(())
     }
 
     pub fn convert_to_tools(&mut self, amount: Tools) -> Result<()> {
-        self.state_after.spend(3 * amount)?;
-        self.tools_gained += amount;
+        self.state_after.spend(3 * amount.0)?;
+        self.tools_gained.0 += amount.0;
 
         Ok(())
     }
 
     pub fn convert_to_scholars(&mut self, amount: Scholars) -> Result<()> {
-        self.state_after.spend(5 * amount)?;
-        self.scholars_gained += amount;
+        self.state_after.spend(5 * amount.0)?;
+        self.scholars_gained.0 += amount.0;
 
         Ok(())
     }
 
     pub fn convert_to_books(&mut self, amount: Books) -> Result<()> {
-        self.state_after.spend(5 * amount)?;
-        self.books_gained += amount;
+        self.state_after.spend(5 * amount.0)?;
+        self.books_gained.0 += amount.0;
 
         Ok(())
     }
@@ -106,10 +106,10 @@ pub fn start_conversion(bowls: PowerBowls) -> PowerConversion {
     PowerConversion {
         state_before: bowls,
         state_after: bowls.clone(),
-        books_gained: 0,
-        scholars_gained: 0,
-        tools_gained: 0,
-        coins_gained: 0,
+        books_gained: Books(0),
+        scholars_gained: Scholars(0),
+        tools_gained: Tools(0),
+        coins_gained: Coins(0),
     }
 }
 
@@ -243,20 +243,20 @@ mod tests {
         let bowls = PowerBowls::new(0, 5, 25);
         let mut conv = start_conversion(bowls);
 
-        conv.convert_to_coins(1)?; // 1 power
-        conv.convert_to_books(2)?; // 10 power
-        conv.convert_to_tools(2)?; // 6 power
-        conv.convert_to_coins(2)?; // 2 power
-        conv.convert_to_scholars(1)?; // 5 power
+        conv.convert_to_coins(Coins(1))?; // 1 power
+        conv.convert_to_books(Books(2))?; // 10 power
+        conv.convert_to_tools(Tools(2))?; // 6 power
+        conv.convert_to_coins(Coins(2))?; // 2 power
+        conv.convert_to_scholars(Scholars(1))?; // 5 power
         let (bowls, books, scholars, tools, coins) = finish_conversion(conv);
 
         assert_eq!(bowls.amount(3), 1);
         assert_eq!(bowls.amount(2), 5);
         assert_eq!(bowls.amount(1), 24);
-        assert_eq!(books, 2);
-        assert_eq!(scholars, 1);
-        assert_eq!(tools, 2);
-        assert_eq!(coins, 3);
+        assert_eq!(books.0, 2);
+        assert_eq!(scholars.0, 1);
+        assert_eq!(tools.0, 2);
+        assert_eq!(coins.0, 3);
 
         Ok(())
     }
@@ -267,16 +267,16 @@ mod tests {
         let mut conv = start_conversion(bowls);
 
         conv.burn_power(2)?;
-        conv.convert_to_tools(1)?;
+        conv.convert_to_tools(Tools(1))?;
         let (bowls, books, scholars, tools, coins) = finish_conversion(conv);
 
         assert_eq!(bowls.amount(3), 0);
         assert_eq!(bowls.amount(2), 1);
         assert_eq!(bowls.amount(1), 3);
-        assert_eq!(books, 0);
-        assert_eq!(scholars, 0);
-        assert_eq!(tools, 1);
-        assert_eq!(coins, 0);
+        assert_eq!(books.0, 0);
+        assert_eq!(scholars.0, 0);
+        assert_eq!(tools.0, 1);
+        assert_eq!(coins.0, 0);
 
         Ok(())
     }

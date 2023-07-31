@@ -5,7 +5,6 @@ pub mod error;
 pub mod faction;
 pub mod gamemap;
 pub mod power;
-pub mod resources;
 pub mod pregame;
 pub mod race;
 pub mod scoringtile;
