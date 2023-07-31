@@ -1,5 +1,3 @@
-use std::fs;
-
 use crate::{error::create_error, Result};
 
 pub const MAP_HEIGHT: usize = 9;
@@ -25,12 +23,11 @@ pub enum TerrainType {
 }
 
 pub fn open_map() -> Vec<Vec<Hex>> {
-    open_map_from_file("assets/base_map.gamemap").unwrap()
+    const BASE_MAP: &str = include_str!("../assets/base_map.gamemap");
+    open_map_from_str(BASE_MAP).unwrap()
 }
 
-fn open_map_from_file(path: &str) -> Result<Vec<Vec<Hex>>> {
-    let input = fs::read_to_string(path)?;
-
+fn open_map_from_str(input: &str) -> Result<Vec<Vec<Hex>>> {
     let mut row_name_gen = "ABCDEFGHIJ".chars();
     let mut res: Vec<Vec<Hex>> = Vec::with_capacity(MAP_HEIGHT);
 
@@ -92,7 +89,7 @@ mod tests {
 
     #[test]
     fn import_basemap() -> Result<()> {
-        let map = open_map_from_file("assets/base_map.gamemap")?;
+        let map = open_map();
 
         assert_eq!(
             (0..MAP_HEIGHT)
