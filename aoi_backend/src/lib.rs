@@ -1,7 +1,13 @@
 // Public modules
+pub mod building;
+pub mod common;
 pub mod error;
+pub mod faction;
 pub mod gamemap;
 pub mod power;
+pub mod pregame;
+pub mod race;
+pub mod scoringtile;
 
 // Private modules
 
