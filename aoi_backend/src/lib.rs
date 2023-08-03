@@ -1,4 +1,5 @@
 // Public modules
+pub mod bonustile;
 pub mod building;
 pub mod common;
 pub mod error;

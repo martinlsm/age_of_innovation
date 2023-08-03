@@ -1,3 +1,5 @@
+use enum_iterator::Sequence;
+
 use crate::{error::create_error, Result};
 
 pub const MAP_HEIGHT: usize = 9;
@@ -8,7 +10,7 @@ pub struct Hex {
     pub terrain: TerrainType,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Sequence)]
 pub enum TerrainType {
     WATER,
     YELLOW,
