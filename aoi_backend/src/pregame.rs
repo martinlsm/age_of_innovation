@@ -6,7 +6,7 @@ use crate::{
     common::Color,
     gamemap::{self, TerrainType},
     race::Race,
-    scoringtile,
+    scoringtile, bookaction::{BookAction, new_game_random_book_actions},
 };
 
 pub struct PreGame {
@@ -15,6 +15,7 @@ pub struct PreGame {
     scoring_tiles: Vec<scoringtile::ScoringTile>,
     faction_pool: FactionPool,
     leftover_bonuses: Vec<BonusTile>,
+    book_actions: Vec<BookAction>,
 }
 
 type FactionPool = Vec<(Race, BonusTile, Color)>;
@@ -29,6 +30,7 @@ impl PreGame {
             scoring_tiles: scoringtile::new_game_random_tiles(),
             faction_pool,
             leftover_bonuses,
+            book_actions: new_game_random_book_actions(),
         }
     }
 }

@@ -279,6 +279,8 @@ fn all_scoring_tiles() -> Vec<ScoringTile> {
 mod tests {
     use std::collections::HashSet;
 
+    use crate::helpers::contains_duplicates;
+
     use super::*;
     #[test]
     fn scoring_tiles_for_new_game_are_6() {
@@ -293,11 +295,7 @@ mod tests {
     fn scoring_tiles_no_duplicates() {
         for _ in 0..100 {
             // Run multiple times since randomness is involved.
-            let tiles = new_game_random_tiles();
-
-            assert!(tiles
-                .iter()
-                .all(|a| tiles.iter().filter(|&b| a == b).count() == 1));
+            assert!(!contains_duplicates(&new_game_random_tiles()));
         }
     }
 }

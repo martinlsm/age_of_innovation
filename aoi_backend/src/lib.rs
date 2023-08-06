@@ -1,9 +1,11 @@
 // Public modules
 pub mod bonustile;
+pub mod bookaction;
 pub mod building;
 pub mod common;
 pub mod error;
 pub mod faction;
+pub mod helpers;
 pub mod gamemap;
 pub mod power;
 pub mod pregame;
