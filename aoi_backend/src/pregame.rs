@@ -82,14 +82,17 @@ mod tests {
             let v = &pregame.faction_pool;
 
             // Check for duplicate races
-            v.iter()
-                .any(|a| v.iter().filter(|&b| a.0 == b.0).count() > 1);
+            assert!(v
+                .iter()
+                .all(|a| v.iter().filter(|&b| a.0 == b.0).count() == 1));
             // Check for duplicate bonus tiles
-            v.iter()
-                .any(|a| v.iter().filter(|&b| a.1 == b.1).count() > 1);
+            assert!(v
+                .iter()
+                .all(|a| v.iter().filter(|&b| a.1 == b.1).count() == 1));
             // Check for duplicate colors
-            v.iter()
-                .any(|a| v.iter().filter(|&b| a.2 == b.2).count() > 1);
+            assert!(v
+                .iter()
+                .all(|a| v.iter().filter(|&b| a.2 == b.2).count() == 1));
         }
     }
 }

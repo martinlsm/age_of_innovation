@@ -294,10 +294,10 @@ mod tests {
         for _ in 0..100 {
             // Run multiple times since randomness is involved.
             let tiles = new_game_random_tiles();
-            let mut set = HashSet::new();
-            tiles.into_iter().all(|x| set.insert(x));
 
-            assert_eq!(set.len(), 6);
+            assert!(tiles
+                .iter()
+                .all(|a| tiles.iter().filter(|&b| a == b).count() == 1));
         }
     }
 }
