@@ -1,6 +1,6 @@
 use enum_iterator::Sequence;
 
-#[derive(Sequence)]
+#[derive(PartialEq, Eq, Sequence)]
 pub enum Race {
     Blessed,
     Monks,

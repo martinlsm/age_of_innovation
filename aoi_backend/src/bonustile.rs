@@ -1,6 +1,6 @@
 use enum_iterator::Sequence;
 
-#[derive(Clone, Copy, Sequence)]
+#[derive(Clone, Copy, PartialEq, Eq, Sequence)]
 pub enum BonusTile {
     BonSailing,
     BonScholar,

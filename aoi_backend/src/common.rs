@@ -1,3 +1,5 @@
+use enum_iterator::Sequence;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct VP(pub u32);
 
@@ -16,4 +18,15 @@ pub enum Discipline {
     Law,
     Engineering,
     Medicine,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Sequence)]
+pub enum Color {
+    YELLOW,
+    BROWN,
+    BLACK,
+    BLUE,
+    GREEN,
+    GRAY,
+    RED,
 }

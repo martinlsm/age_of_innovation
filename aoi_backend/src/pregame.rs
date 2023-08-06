@@ -3,6 +3,7 @@ use rand::{seq::SliceRandom, thread_rng};
 
 use crate::{
     bonustile::BonusTile,
+    common::Color,
     gamemap::{self, TerrainType},
     race::Race,
     scoringtile,
@@ -16,7 +17,7 @@ pub struct PreGame {
     leftover_bonuses: Vec<BonusTile>,
 }
 
-type FactionPool = Vec<(Race, BonusTile, TerrainType)>;
+type FactionPool = Vec<(Race, BonusTile, Color)>;
 
 impl PreGame {
     pub fn new_random(num_players: u32) -> Self {
@@ -43,11 +44,52 @@ fn gen_random_faction_pool() -> (FactionPool, Vec<BonusTile>) {
     let bonus_tiles_pool: Vec<BonusTile> = bonus_tiles.as_slice()[..7].to_vec();
     let leftover_bonuses: Vec<BonusTile> = bonus_tiles.as_slice()[7..10].to_vec();
 
-    let mut terrains: Vec<TerrainType> = enum_iterator::all().collect();
-    terrains.shuffle(&mut rng);
+    let mut colors: Vec<Color> = enum_iterator::all().collect();
+    colors.shuffle(&mut rng);
 
     (
-        izip!(races, bonus_tiles_pool, terrains).collect(),
+        izip!(races, bonus_tiles_pool, colors).collect(),
         leftover_bonuses,
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn leftover_bonuses_are_3() {
+        for num_players in 2..5 {
+            let pregame = PreGame::new_random(num_players);
+
+            assert_eq!(pregame.leftover_bonuses.len(), 3);
+        }
+    }
+
+    #[test]
+    fn there_are_7_possible_faction_selections() {
+        for num_players in 2..5 {
+            let pregame = PreGame::new_random(num_players);
+
+            assert_eq!(pregame.faction_pool.len(), 7);
+        }
+    }
+
+    #[test]
+    fn faction_pool_have_no_duplicate_entries() {
+        for num_players in 2..5 {
+            let pregame = PreGame::new_random(num_players);
+            let v = &pregame.faction_pool;
+
+            // Check for duplicate races
+            v.iter()
+                .any(|a| v.iter().filter(|&b| a.0 == b.0).count() > 1);
+            // Check for duplicate bonus tiles
+            v.iter()
+                .any(|a| v.iter().filter(|&b| a.1 == b.1).count() > 1);
+            // Check for duplicate colors
+            v.iter()
+                .any(|a| v.iter().filter(|&b| a.2 == b.2).count() > 1);
+        }
+    }
 }
