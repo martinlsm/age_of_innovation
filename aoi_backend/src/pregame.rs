@@ -4,7 +4,7 @@ use rand::{seq::SliceRandom, thread_rng};
 use crate::{
     bonustile::BonusTile,
     common::Color,
-    gamemap::{self, TerrainType},
+    gamemap::{self, Terrain},
     race::Race,
     scoringtile, bookaction::{BookAction, new_game_random_book_actions},
 };

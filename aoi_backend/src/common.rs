@@ -22,11 +22,11 @@ pub enum Discipline {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Sequence)]
 pub enum Color {
-    YELLOW,
-    BROWN,
-    BLACK,
-    BLUE,
-    GREEN,
-    GRAY,
-    RED,
+    Yellow,
+    Brown,
+    Black,
+    Blue,
+    Green,
+    Gray,
+    Red,
 }

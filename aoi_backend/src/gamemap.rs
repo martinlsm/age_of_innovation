@@ -1,25 +1,19 @@
 use enum_iterator::Sequence;
 
-use crate::{error::create_error, Result};
+use crate::{error::create_error, Result, common::Color};
 
 pub const MAP_HEIGHT: usize = 9;
 pub const MAP_WIDTH: usize = 13;
 
 pub struct Hex {
     pub name: Option<String>,
-    pub terrain: TerrainType,
+    pub terrain: Terrain,
 }
 
 #[derive(PartialEq, Sequence)]
-pub enum TerrainType {
-    WATER,
-    YELLOW,
-    BROWN,
-    BLACK,
-    BLUE,
-    GREEN,
-    GRAY,
-    RED,
+pub enum Terrain {
+    Land(Color),
+    Water,
 }
 
 pub fn open_map() -> Vec<Vec<Hex>> {
@@ -50,18 +44,18 @@ fn parse_row(input: &str, row_name: char) -> Result<Vec<Hex>> {
         .split(",")
         .map(|x| {
             match x {
-                "I" => Ok(TerrainType::WATER),
-                "Y" => Ok(TerrainType::YELLOW),
-                "U" => Ok(TerrainType::BROWN),
-                "K" => Ok(TerrainType::BLACK),
-                "B" => Ok(TerrainType::BLUE),
-                "G" => Ok(TerrainType::GREEN),
-                "S" => Ok(TerrainType::GRAY),
-                "R" => Ok(TerrainType::RED),
+                "I" => Ok(Terrain::Water),
+                "Y" => Ok(Terrain::Land(Color::Yellow)),
+                "U" => Ok(Terrain::Land(Color::Brown)),
+                "K" => Ok(Terrain::Land(Color::Black)),
+                "B" => Ok(Terrain::Land(Color::Blue)),
+                "G" => Ok(Terrain::Land(Color::Green)),
+                "S" => Ok(Terrain::Land(Color::Gray)),
+                "R" => Ok(Terrain::Land(Color::Red)),
                 x => return Err(create_error(&format!("Invalid symbol '{}'", x))),
             }
             .and_then(|t| match t {
-                TerrainType::WATER => Ok(Hex {
+                Terrain::Water => Ok(Hex {
                     name: None,
                     terrain: t,
                 }),
@@ -94,63 +88,56 @@ mod tests {
         assert_eq!(
             (0..MAP_HEIGHT)
                 .cartesian_product(0..MAP_WIDTH)
-                .filter(|&(r, c)| map[r][c].terrain == TerrainType::WATER)
+                .filter(|&(r, c)| map[r][c].terrain == Terrain::Water)
                 .count(),
             36
         );
         assert_eq!(
             (0..MAP_HEIGHT)
                 .cartesian_product(0..MAP_WIDTH)
-                .filter(|&(r, c)| map[r][c].terrain == TerrainType::YELLOW)
+                .filter(|&(r, c)| map[r][c].terrain == Terrain::Land(Color::Yellow))
                 .count(),
             11
         );
         assert_eq!(
             (0..MAP_HEIGHT)
                 .cartesian_product(0..MAP_WIDTH)
-                .filter(|&(r, c)| map[r][c].terrain == TerrainType::BROWN)
+                .filter(|&(r, c)| map[r][c].terrain == Terrain::Land(Color::Brown))
                 .count(),
             12
         );
         assert_eq!(
             (0..MAP_HEIGHT)
                 .cartesian_product(0..MAP_WIDTH)
-                .filter(|&(r, c)| map[r][c].terrain == TerrainType::BLACK)
+                .filter(|&(r, c)| map[r][c].terrain == Terrain::Land(Color::Black))
                 .count(),
             12
         );
         assert_eq!(
             (0..MAP_HEIGHT)
                 .cartesian_product(0..MAP_WIDTH)
-                .filter(|&(r, c)| map[r][c].terrain == TerrainType::BLUE)
+                .filter(|&(r, c)| map[r][c].terrain == Terrain::Land(Color::Blue))
                 .count(),
             12
         );
         assert_eq!(
             (0..MAP_HEIGHT)
                 .cartesian_product(0..MAP_WIDTH)
-                .filter(|&(r, c)| map[r][c].terrain == TerrainType::GREEN)
+                .filter(|&(r, c)| map[r][c].terrain == Terrain::Land(Color::Green))
                 .count(),
             11
         );
         assert_eq!(
             (0..MAP_HEIGHT)
                 .cartesian_product(0..MAP_WIDTH)
-                .filter(|&(r, c)| map[r][c].terrain == TerrainType::GRAY)
+                .filter(|&(r, c)| map[r][c].terrain == Terrain::Land(Color::Gray))
                 .count(),
             11
         );
         assert_eq!(
             (0..MAP_HEIGHT)
                 .cartesian_product(0..MAP_WIDTH)
-                .filter(|&(r, c)| map[r][c].terrain == TerrainType::GRAY)
-                .count(),
-            11
-        );
-        assert_eq!(
-            (0..MAP_HEIGHT)
-                .cartesian_product(0..MAP_WIDTH)
-                .filter(|&(r, c)| map[r][c].terrain == TerrainType::RED)
+                .filter(|&(r, c)| map[r][c].terrain == Terrain::Land(Color::Red))
                 .count(),
             12
         );
