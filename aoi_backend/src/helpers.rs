@@ -1,17 +1,16 @@
 use std::iter::zip;
 
 pub fn contains_duplicates<T: Eq>(vec: &Vec<T>) -> bool {
-    for (i,a) in zip(0.., vec) {
+    for (i, a) in zip(0.., vec) {
         for b in &vec[i + 1..] {
             if a == b {
                 return true;
-            }            
+            }
         }
     }
 
     false
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -25,5 +24,10 @@ mod tests {
     #[test]
     fn contains_duplicates_negative() {
         assert!(!contains_duplicates(&vec![1, 2, 3, 4]));
+    }
+
+    #[test]
+    fn contains_duplicates_empty() {
+        assert!(!contains_duplicates(&Vec::<i32>::new()));
     }
 }

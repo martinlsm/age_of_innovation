@@ -1,13 +1,20 @@
-use crate::gamemap::Terrain;
+use crate::common::Color;
 
 use crate::race::Race;
 pub struct Faction {
     race: Race,
-    color: Terrain,
+    color: Color,
 }
 
 impl Faction {
-    pub fn get_color(&self) -> &Terrain {
+    pub fn new(race: &Race, color: &Color) -> Self {
+        Faction {
+            race: *race,
+            color: *color,
+        }
+    }
+
+    pub fn get_color(&self) -> &Color {
         &self.color
     }
 }

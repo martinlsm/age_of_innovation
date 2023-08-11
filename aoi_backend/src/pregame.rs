@@ -1,19 +1,23 @@
+use std::rc::Rc;
+
 use itertools::izip;
 use rand::{seq::SliceRandom, thread_rng};
 
 use crate::{
     bonustile::BonusTile,
+    bookaction::{new_game_random_book_actions, BookAction},
     common::Color,
-    gamemap::{self, Terrain},
+    faction::Faction,
+    gamemap,
     race::Race,
-    scoringtile, bookaction::{BookAction, new_game_random_book_actions},
+    scoringtile, Result, error::create_error,
 };
 
 pub struct PreGame {
     num_players: u32,
     map: Vec<Vec<gamemap::Hex>>,
     scoring_tiles: Vec<scoringtile::ScoringTile>,
-    faction_pool: FactionPool,
+    faction_pool: Rc<FactionPool>,
     leftover_bonuses: Vec<BonusTile>,
     book_actions: Vec<BookAction>,
 }
@@ -28,10 +32,59 @@ impl PreGame {
             num_players,
             map: gamemap::open_map(),
             scoring_tiles: scoringtile::new_game_random_tiles(),
-            faction_pool,
+            faction_pool: Rc::new(faction_pool),
             leftover_bonuses,
             book_actions: new_game_random_book_actions(),
         }
+    }
+
+    pub fn select_faction() -> Result<u32> {
+        Ok(0)
+    }
+}
+
+pub struct FactionSelector {
+    selected: Vec<usize>,
+    faction_pool: Rc<FactionPool>,
+    num_players: u32,
+}
+
+impl FactionSelector {
+    pub fn new(pregame: &PreGame) -> Self {
+        FactionSelector {
+            selected: Vec::new(),
+            faction_pool: pregame.faction_pool.clone(),
+            num_players: pregame.num_players,
+        }
+    }
+
+    pub fn select(&mut self, idx: usize) -> Result<()> {
+        if self.selected.len() >= self.num_players as usize {
+            return Err(create_error("All factions are already selected"));
+        }
+        if self.selected.contains(&idx) {
+            return Err(create_error("Faction has already been selected"));
+        }
+
+        self.selected.push(idx);
+
+        Ok(())
+    }
+
+    pub fn finish(&self) -> Result<Vec<Faction>> {
+        if self.selected.len() != self.num_players as usize {
+            return Err(create_error("All players must have selected a faction"));
+        }
+
+        let mut res = Vec::new();
+        for idx in &self.selected {
+            // TODO: Deal with the bonus tile
+            let (race, _, color) = &(*self.faction_pool)[*idx];
+            res.push(Faction::new(race, color));
+
+        }
+
+        Ok(res)
     }
 }
 
@@ -96,5 +149,67 @@ mod tests {
                 .iter()
                 .all(|a| v.iter().filter(|&b| a.2 == b.2).count() == 1));
         }
+    }
+
+    #[test]
+    fn selected_factions_are_correct_in_number() -> Result<()> {
+        for num_players in 2..5 {
+            let pregame = PreGame::new_random(num_players);
+            let mut selector = FactionSelector::new(&pregame);
+
+            for i in 0..num_players {
+                selector.select(i as usize)?;
+            }
+
+            let selected = selector.finish()?;
+            assert_eq!(selected.len(), num_players as usize);
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn finish_faction_selection_prematurely() -> Result<()> {
+        for num_players in 2..5 {
+            let pregame = PreGame::new_random(num_players);
+            let mut selector = FactionSelector::new(&pregame);
+
+            // Select faction to all players except the two last ones
+            for i in 0..(num_players - 2) {
+                selector.select(i as usize)?;
+            }
+
+            assert!(selector.finish().is_err());
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn select_too_many_factions() -> Result<()> {
+        for num_players in 2..5 {
+            let pregame = PreGame::new_random(num_players);
+            let mut selector = FactionSelector::new(&pregame);
+
+            for i in 0..num_players {
+                selector.select(i as usize)?;
+            }
+
+            assert!(selector.select(num_players as usize).is_err());
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn select_duplicate_faction() -> Result<()> {
+        let pregame = PreGame::new_random(4);
+        let mut selector = FactionSelector::new(&pregame);
+
+        selector.select(0)?;
+
+        assert!(selector.select(0).is_err());
+
+        Ok(())
     }
 }

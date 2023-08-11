@@ -1,6 +1,6 @@
 use enum_iterator::Sequence;
 
-use crate::{error::create_error, Result, common::Color};
+use crate::{common::Color, error::create_error, Result};
 
 pub const MAP_HEIGHT: usize = 9;
 pub const MAP_WIDTH: usize = 13;
