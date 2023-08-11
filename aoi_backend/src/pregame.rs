@@ -7,10 +7,11 @@ use crate::{
     bonustile::BonusTile,
     bookaction::{new_game_random_book_actions, BookAction},
     common::Color,
+    error::create_error,
     faction::Faction,
     gamemap,
     race::Race,
-    scoringtile, Result, error::create_error,
+    scoringtile, Result,
 };
 
 pub struct PreGame {
@@ -81,7 +82,6 @@ impl FactionSelector {
             // TODO: Deal with the bonus tile
             let (race, _, color) = &(*self.faction_pool)[*idx];
             res.push(Faction::new(race, color));
-
         }
 
         Ok(res)

@@ -3,6 +3,10 @@ use enum_iterator::Sequence;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct VP(pub u32);
 
+pub trait Resource: Sized {
+    fn from(val: u32) -> Self;
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Coins(pub u32);
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
