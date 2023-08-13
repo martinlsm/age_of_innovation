@@ -277,8 +277,6 @@ fn all_scoring_tiles() -> Vec<ScoringTile> {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
-
     use crate::helpers::contains_duplicates;
 
     use super::*;
