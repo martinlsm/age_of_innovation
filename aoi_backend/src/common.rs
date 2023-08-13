@@ -5,29 +5,35 @@ use enum_iterator::Sequence;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct VP(pub u32);
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Coins(pub u32);
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Tools(pub u32);
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Scholars(pub u32);
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Books(pub u32);
-
-pub trait Resource: Sized + Copy + Clone {
+pub trait Resource: Sized + Copy + Clone + ops::Add<Output = Self> {
     fn from(val: u32) -> Self;
-    fn get() -> u32;
 }
 
-impl<T: Resource> Resource for T {
-    fn from(val: u32) -> Self {
-        todo!()
-    }
+macro_rules! define_resource {
+    ($name:ident) => {
+        #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+        pub struct $name(pub u32);
 
-    fn get() -> u32 {
-        todo!()
-    }
-} 
+        impl Resource for $name {
+            fn from(val: u32) -> Self {
+                Self(val)
+            }
+        }
+
+        impl ops::Add for $name {
+            type Output = Self;
+
+            fn add(self, rhs: Self) -> Self::Output {
+                Self(self.0 + rhs.0)
+            }
+        }
+    };
+}
+
+define_resource!(Tools);
+define_resource!(Coins);
+define_resource!(Scholars);
+define_resource!(Books);
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Discipline {

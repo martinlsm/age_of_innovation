@@ -1,6 +1,6 @@
 use std::fs::create_dir;
 
-use crate::common::{Color, Tools, Resource};
+use crate::common::{Color, Resource, Tools};
 use crate::Result;
 
 use crate::error::create_error;
@@ -26,8 +26,16 @@ impl Faction {
     }
 }
 
+trait Length {
+    const Len: usize;
+}
+
+impl Track for BuildingIncomeTrack<Tools> {
+    const Len: usize = 10;
+}
+
 pub struct BuildingIncomeTrack<T: Resource> {
-    income_gain: [T; 10], // The zeroth index is the amount gained when zero workshops are placed
+    income_gain: [T; BuildingIncomeTrack::Len], // The zeroth index is the amount gained when zero workshops are placed
     workshops_on_track: usize,
 }
 
@@ -59,7 +67,6 @@ impl<T: Resource> BuildingIncomeTrack<T> {
 
             Ok(())
         }
-
     }
 
     pub fn put_building(&mut self) -> Result<()> {
@@ -75,16 +82,17 @@ impl<T: Resource> BuildingIncomeTrack<T> {
     pub fn income(&self) -> T {
         let num_income_slots = self.income_gain.len() - self.workshops_on_track;
 
-        self.income_gain.iter().take(num_income_slots).fold(T::from(0), |a, b| a + *b)
+        self.income_gain
+            .iter()
+            .take(num_income_slots)
+            .fold(T::from(0), |a, b| a + *b)
     }
 }
-
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    /*
     #[test]
     fn income_for_zero_workshops() {
         let track : BuildingIncomeTrack<Tools> = BuildingIncomeTrack::new(Color::Black); // Arbitrary color
@@ -103,5 +111,4 @@ mod tests {
 
         Ok(())
     }
-    */
 }
