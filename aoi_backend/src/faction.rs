@@ -1,6 +1,4 @@
-use std::fs::create_dir;
-
-use crate::common::{Color, Resource, Tools};
+use crate::common::{Color, Resource, Tools, Coins, Scholars};
 use crate::Result;
 
 use crate::error::create_error;
@@ -26,61 +24,73 @@ impl Faction {
     }
 }
 
-trait Length {
-    const Len: usize;
+trait IncomeTrack {
+    fn new(color: Color) -> Self;
 }
 
-impl Track for BuildingIncomeTrack<Tools> {
-    const Len: usize = 10;
+impl IncomeTrack for BuildingIncomeTrack<Tools> {
+    fn new(color: Color) -> Self {
+        // TODO: Income is currently unknown so this is a placeholder; fix when info is available
+        Self {
+            income_gain: vec![
+                Tools::from(1),
+                Tools::from(1),
+                Tools::from(1),
+                Tools::from(1),
+                Tools::from(1),
+                Tools::from(1),
+                Tools::from(1),
+                Tools::from(1),
+                Tools::from(1),
+                Tools::from(1),
+            ],
+            buildings_on_track: 9,
+        }
+    }
+}
+
+impl IncomeTrack for BuildingIncomeTrack<(Coins, Scholars)> {
+    fn new(color: Color) -> Self {
+        Self {
+            income_gain: vec![
+                Coins::from(2),
+                Coins::from(2),
+                Coins::from(2),
+                Coins::from(2),
+            ],
+            buildings_on_track: 4,
+        }
+    }
 }
 
 pub struct BuildingIncomeTrack<T: Resource> {
-    income_gain: [T; BuildingIncomeTrack::Len], // The zeroth index is the amount gained when zero workshops are placed
-    workshops_on_track: usize,
+    income_gain: Vec<T>, // The zeroth index is the amount gained when zero workshops are placed
+    buildings_on_track: usize,
 }
 
 impl<T: Resource> BuildingIncomeTrack<T> {
-    pub fn new(color: Color) -> Self {
-        BuildingIncomeTrack {
-            // TODO: Income is currently unknown so this is a placeholder; fix when info is available
-            income_gain: [
-                T::from(1),
-                T::from(1),
-                T::from(1),
-                T::from(1),
-                T::from(1),
-                T::from(1),
-                T::from(1),
-                T::from(1),
-                T::from(1),
-                T::from(1),
-            ],
-            workshops_on_track: 9,
-        }
-    }
-
     pub fn remove_building(&mut self) -> Result<()> {
-        if self.workshops_on_track == 0 {
+        if self.buildings_on_track == 0 {
             Err(create_error("No workshops left on board"))
         } else {
-            self.workshops_on_track -= 1;
+            self.buildings_on_track -= 1;
 
             Ok(())
         }
     }
 
     pub fn put_building(&mut self) -> Result<()> {
-        if self.workshops_on_track >= 9 {
+        if self.buildings_on_track >= 9 {
             Err(create_error("Board is already full of workshops"))
         } else {
-            self.workshops_on_track += 1;
+            self.buildings_on_track += 1;
 
             Ok(())
         }
     }
 
     pub fn income(&self) -> T {
-        let num_income_slots = self.income_gain.len() - self.workshops_on_track;
+        let num_income_slots = self.income_gain.len() - self.buildings_on_track;
 
         self.income_gain
             .iter()

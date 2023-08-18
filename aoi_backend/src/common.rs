@@ -5,16 +5,16 @@ use enum_iterator::Sequence;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct VP(pub u32);
 
-pub trait Resource: Sized + Copy + Clone + ops::Add<Output = Self> {
-    fn from(val: u32) -> Self;
-}
+pub trait Resource: From<u32> + Copy + Clone + ops::Add<Output = Self> {}
 
 macro_rules! define_resource {
     ($name:ident) => {
         #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
         pub struct $name(pub u32);
 
-        impl Resource for $name {
+        impl Resource for $name {}
+
+        impl From<u32> for $name {
             fn from(val: u32) -> Self {
                 Self(val)
             }
