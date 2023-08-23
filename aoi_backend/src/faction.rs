@@ -1,26 +1,160 @@
+use std::cmp::min;
+
 use crate::building::BuildingType;
-use crate::common::{Color, Resources, Tools};
+use crate::common::{
+    Books, Coins, Color, Discipline, Power, Resources, Scholars, Tools, DISCIPLINE_MAX,
+};
 use crate::Result;
 
 use crate::error::create_error;
+use crate::power::PowerBowls;
 use crate::race::Race;
 pub struct Faction {
     race: Race,
     color: Color,
-    // digging_cost: u32,
-    // shipping_level: u32,
-    // num_tools: Tools,
-    // num_coins: Coins,
-    // num_books: Books,
-    // disc_track: [u32; 4],
-    // power: PowerBowls,
+    digging_cost: u32,
+    sailing_level: u32,
+    num_tools: Tools,
+    num_coins: Coins,
+    num_books: Books,
+    num_scholars: Scholars,
+    scholars_cap: Scholars,
+    disc_track: [u32; 4],
+    power: PowerBowls,
+    dig_upg_cost: Resources,
+    sailing_upg_cost: Resources,
 }
 
 impl Faction {
     pub fn new(race: &Race, color: &Color) -> Self {
-        Faction {
+        let mut faction = Faction {
             race: *race,
             color: *color,
+            digging_cost: 3,
+            sailing_level: 0,
+            num_tools: Tools(3),
+            num_coins: Coins(15),
+            num_scholars: Scholars(0),
+            scholars_cap: Scholars(7),
+            num_books: Books(0),
+            disc_track: [0, 0, 0, 0],
+            power: PowerBowls::new(5, 7, 0),
+            dig_upg_cost: Resources::from(Tools(1))
+                + &Resources::from(Coins(5))
+                + &Resources::from(Scholars(1)),
+            sailing_upg_cost: Resources::from(Coins(4)) + &Resources::from(Scholars(1)),
+        };
+
+        faction.apply_race_bonus();
+        faction.apply_color_bonus();
+
+        faction
+    }
+
+    fn incr_disc(&mut self, disc: Discipline, amount: u32) -> u32 {
+        let track: &mut u32 = &mut self.disc_track[disc as usize];
+
+        *track = min(*track + amount, DISCIPLINE_MAX);
+
+        *track
+    }
+
+    fn apply_race_bonus(&mut self) {
+        match self.race {
+            Race::Blessed => {
+                self.incr_disc(Discipline::Banking, 1);
+                self.incr_disc(Discipline::Law, 1);
+                self.incr_disc(Discipline::Engineering, 1);
+                self.incr_disc(Discipline::Medicine, 1);
+                // TODO: Ability
+            }
+            Race::Monks => {
+                self.incr_disc(Discipline::Law, 1);
+                self.incr_disc(Discipline::Medicine, 1);
+
+                self.num_tools += Tools(1);
+                // TODO: Ability
+            }
+            Race::Felines => {
+                self.incr_disc(Discipline::Banking, 1);
+                self.incr_disc(Discipline::Medicine, 1);
+                // TODO: Ability
+            }
+            Race::Navigators => {
+                self.incr_disc(Discipline::Law, 3);
+                // TODO: Ability
+            }
+            Race::Goblins => {
+                self.incr_disc(Discipline::Banking, 1);
+                self.incr_disc(Discipline::Engineering, 1);
+
+                self.num_tools += Tools(1);
+                // TODO: Ability
+            }
+            Race::Omar => {
+                self.incr_disc(Discipline::Banking, 1);
+                self.incr_disc(Discipline::Engineering, 1);
+                // TODO: Ability
+            }
+            Race::Illusionists => {
+                self.incr_disc(Discipline::Medicine, 2);
+                // TODO: Ability
+            }
+            Race::Inventors => {
+                // TODO: Ability
+            }
+            Race::Philosophers => {
+                self.incr_disc(Discipline::Banking, 2);
+                // TODO: Ability
+            }
+            Race::Lizards => {
+                // TODO: Ability
+            }
+            Race::Psychics => {
+                self.incr_disc(Discipline::Banking, 1);
+                self.incr_disc(Discipline::Medicine, 1);
+
+                self.num_tools += Tools(1);
+                // TODO: Ability
+            }
+            Race::Moles => {
+                self.incr_disc(Discipline::Engineering, 2);
+                // TODO: Ability
+            }
+        }
+    }
+
+    fn apply_color_bonus(&mut self) {
+        match self.color {
+            Color::Yellow => {
+                // TODO: Gain spade
+            }
+            Color::Brown => {
+                self.dig_upg_cost = Resources::from(Tools(1))
+                    + &Resources::from(Coins(1))
+                    + &Resources::from(Scholars(1));
+            }
+            Color::Black => {
+                self.num_scholars += Scholars(1);
+                self.power = PowerBowls::new(0, 3, 9);
+            }
+            Color::Blue => {
+                self.sailing_level = 1;
+            }
+            Color::Green => {
+                self.incr_disc(Discipline::Banking, 1);
+                self.incr_disc(Discipline::Law, 1);
+                self.incr_disc(Discipline::Engineering, 1);
+                self.incr_disc(Discipline::Medicine, 1);
+
+                self.power = PowerBowls::new(4, 8, 0);
+            }
+            Color::Gray => {
+                // TODO...
+            }
+            Color::Red => {
+                // TODO...
+            }
         }
     }
 }
@@ -31,6 +165,7 @@ pub struct BuildingIncomeTrack {
 }
 
 impl BuildingIncomeTrack {
+    // TODO: Fill in the rest...
     pub fn new(color: &Color, building: &BuildingType) -> Self {
         match (color, building) {
             (Color::Yellow, BuildingType::Workshop) => Self {
@@ -173,6 +308,31 @@ mod tests {
 
         assert!(track.put_building().is_err());
 
-       Ok(())
+        Ok(())
+    }
+
+    #[test]
+    fn incr_disc() {
+        let mut faction = Faction::new(&Race::Blessed, &Color::Yellow);
+
+        let banking = faction.incr_disc(Discipline::Banking, 1);
+        let law = faction.incr_disc(Discipline::Law, 2);
+        let engineering = faction.incr_disc(Discipline::Engineering, 3);
+        let medicine = faction.incr_disc(Discipline::Medicine, 4);
+
+        assert_eq!(banking, 2); // Blessed starts with 1 in Banking (1 + 1)
+        assert_eq!(law, 3); // Blessed starts with 1 in Law (1 + 2)
+        assert_eq!(engineering, 4); // Blessed starts with 1 in Engineering (1 + 3)
+        assert_eq!(medicine, 5); // Blessed starts with 1 in Medicine (1 + 4)
+    }
+
+    #[test]
+    fn incr_disc_beyond_limit() {
+        let mut faction = Faction::new(&Race::Monks, &Color::Black);
+
+        let disc = faction.incr_disc(Discipline::Engineering, 15);
+
+        // Discipline can't go over the hard limit of 12
+        assert_eq!(disc, 12);
     }
 }

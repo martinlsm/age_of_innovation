@@ -1,5 +1,7 @@
 use enum_iterator::Sequence;
 
+use crate::faction::Faction;
+
 #[derive(Copy, Clone, PartialEq, Eq, Sequence)]
 pub enum Race {
     Blessed,

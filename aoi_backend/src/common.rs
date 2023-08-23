@@ -1,4 +1,4 @@
-use std::{ops, iter};
+use std::{iter, ops};
 
 use enum_iterator::Sequence;
 
@@ -32,17 +32,17 @@ macro_rules! define_resource {
             }
         }
 
-        impl From<$name> for u32 {
-            fn from(val: $name) -> Self {
-                val.0
-            }
-        }
-
         impl ops::Add for $name {
             type Output = Self;
 
             fn add(self, rhs: Self) -> Self::Output {
                 Self(self.0 + rhs.0)
+            }
+        }
+
+        impl ops::AddAssign for $name {
+            fn add_assign(&mut self, rhs: Self) {
+                *self = *self + rhs;
             }
         }
 
@@ -53,13 +53,19 @@ macro_rules! define_resource {
                 Self(self.0 - rhs.0)
             }
         }
+
+        impl ops::SubAssign for $name {
+            fn sub_assign(&mut self, rhs: Self) {
+                *self = *self - rhs;
+            }
+        }
     };
 }
 
 define_resource!(Tools, 0);
 define_resource!(Coins, 1);
 define_resource!(Scholars, 2);
-define_resource!(Books, 3);
+define_resource!(Books, 3); // TODO: Books have colors
 define_resource!(Power, 4);
 const NUM_RESOURCES: usize = 5;
 
@@ -71,7 +77,7 @@ pub struct Resources {
 impl Resources {
     pub fn new() -> Self {
         Self {
-            amounts: iter::repeat(0).take(NUM_RESOURCES).collect()
+            amounts: iter::repeat(0).take(NUM_RESOURCES).collect(),
         }
     }
 
@@ -134,6 +140,8 @@ pub enum Discipline {
     Engineering,
     Medicine,
 }
+
+pub const DISCIPLINE_MAX: u32 = 12;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Sequence)]
 pub enum Color {
