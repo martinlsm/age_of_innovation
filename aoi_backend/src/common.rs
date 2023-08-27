@@ -2,6 +2,8 @@ use std::{iter, ops};
 
 use enum_iterator::Sequence;
 
+use serde::{ser::SerializeStruct, Serialize, Serializer};
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct VP(pub u32);
 
@@ -15,7 +17,7 @@ pub trait Resource:
 
 macro_rules! define_resource {
     ($name:ident, $idx:expr) => {
-        #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+        #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize)]
         pub struct $name(pub u32);
 
         impl Resource for $name {
@@ -133,7 +135,36 @@ impl ops::Sub<&Resources> for Resources {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+impl Serialize for Resources {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        // Only serialize non-zero elements
+        let num_non_zero = self.amounts.iter().filter(|&x| *x != 0).count();
+
+        let mut seq = serializer.serialize_struct("resources", num_non_zero)?;
+        if self.amounts[Tools::IDX] != 0 {
+            seq.serialize_field("tools", &self.amounts[Tools::IDX])?;
+        }
+        if self.amounts[Coins::IDX] != 0 {
+            seq.serialize_field("coins", &self.amounts[Coins::IDX])?;
+        }
+        if self.amounts[Scholars::IDX] != 0 {
+            seq.serialize_field("scholars", &self.amounts[Scholars::IDX])?;
+        }
+        if self.amounts[Books::IDX] != 0 {
+            seq.serialize_field("books", &self.amounts[Books::IDX])?;
+        }
+        if self.amounts[Power::IDX] != 0 {
+            seq.serialize_field("power", &self.amounts[Power::IDX])?;
+        }
+
+        seq.end()
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 pub enum Discipline {
     Banking,
     Law,
@@ -143,7 +174,7 @@ pub enum Discipline {
 
 pub const DISCIPLINE_MAX: u32 = 12;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Sequence)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Sequence, Serialize)]
 pub enum Color {
     Yellow,
     Brown,
@@ -152,4 +183,5 @@ pub enum Color {
     Green,
     Gray,
     Red,
+    Colorless,
 }

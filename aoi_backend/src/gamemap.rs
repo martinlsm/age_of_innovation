@@ -82,7 +82,7 @@ mod tests {
     use itertools::Itertools;
 
     #[test]
-    fn import_basemap() -> Result<()> {
+    fn import_basemap() {
         let map = open_map();
 
         assert_eq!(
@@ -144,7 +144,5 @@ mod tests {
 
         assert!(map.len() == MAP_HEIGHT);
         assert!(map.into_iter().all(|row| row.len() == MAP_WIDTH));
-
-        Ok(())
     }
 }

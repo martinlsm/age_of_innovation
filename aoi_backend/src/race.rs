@@ -1,8 +1,7 @@
 use enum_iterator::Sequence;
+use serde::Serialize;
 
-use crate::faction::Faction;
-
-#[derive(Copy, Clone, PartialEq, Eq, Sequence)]
+#[derive(Copy, Clone, PartialEq, Eq, Sequence, Serialize)]
 pub enum Race {
     Blessed,
     Monks,

@@ -9,15 +9,20 @@ use crate::Result;
 use crate::error::create_error;
 use crate::power::PowerBowls;
 use crate::race::Race;
+
+use serde::Serialize;
+use serde_json::json;
+
+#[derive(Serialize)]
 pub struct Faction {
     race: Race,
     color: Color,
-    digging_cost: u32,
+    digging_cost: Tools,
     sailing_level: u32,
-    num_tools: Tools,
-    num_coins: Coins,
-    num_books: Books,
-    num_scholars: Scholars,
+    tools: Tools,
+    coins: Coins,
+    books: [Books; 4], // One book for each discipline, indexed by Discipline casted to usize
+    scholars: Scholars,
     scholars_cap: Scholars,
     disc_track: [u32; 4],
     power: PowerBowls,
@@ -30,13 +35,13 @@ impl Faction {
         let mut faction = Faction {
             race: *race,
             color: *color,
-            digging_cost: 3,
+            digging_cost: Tools(3),
             sailing_level: 0,
-            num_tools: Tools(3),
-            num_coins: Coins(15),
-            num_scholars: Scholars(0),
+            tools: Tools(3),
+            coins: Coins(15),
+            scholars: Scholars(0),
             scholars_cap: Scholars(7),
-            num_books: Books(0),
+            books: [Books(0), Books(0), Books(0), Books(0)],
             disc_track: [0, 0, 0, 0],
             power: PowerBowls::new(5, 7, 0),
             dig_upg_cost: Resources::from(Tools(1))
@@ -51,11 +56,9 @@ impl Faction {
         faction
     }
 
-    fn incr_disc(&mut self, disc: Discipline, amount: u32) -> u32 {
+    pub fn incr_disc(&mut self, disc: Discipline, amount: u32) -> u32 {
         let track: &mut u32 = &mut self.disc_track[disc as usize];
-
         *track = min(*track + amount, DISCIPLINE_MAX);
-
         *track
     }
 
@@ -72,7 +75,7 @@ impl Faction {
                 self.incr_disc(Discipline::Law, 1);
                 self.incr_disc(Discipline::Medicine, 1);
 
-                self.num_tools += Tools(1);
+                self.tools += Tools(1);
                 // TODO: Ability
             }
             Race::Felines => {
@@ -88,7 +91,7 @@ impl Faction {
                 self.incr_disc(Discipline::Banking, 1);
                 self.incr_disc(Discipline::Engineering, 1);
 
-                self.num_tools += Tools(1);
+                self.tools += Tools(1);
                 // TODO: Ability
             }
             Race::Omar => {
@@ -114,7 +117,7 @@ impl Faction {
                 self.incr_disc(Discipline::Banking, 1);
                 self.incr_disc(Discipline::Medicine, 1);
 
-                self.num_tools += Tools(1);
+                self.tools += Tools(1);
                 // TODO: Ability
             }
             Race::Moles => {
@@ -135,7 +138,7 @@ impl Faction {
                     + &Resources::from(Scholars(1));
             }
             Color::Black => {
-                self.num_scholars += Scholars(1);
+                self.scholars += Scholars(1);
                 self.power = PowerBowls::new(0, 3, 9);
             }
             Color::Blue => {
@@ -154,6 +157,9 @@ impl Faction {
             }
             Color::Red => {
                 // TODO...
+            }
+            Color::Colorless => {
+                // For testing, no bonus
             }
         }
     }
@@ -231,6 +237,13 @@ impl BuildingIncomeTrack {
             (Color::Red, BuildingType::Palace) => todo!(),
             (Color::Red, BuildingType::Tower) => todo!(),
             (Color::Red, BuildingType::Monument) => todo!(),
+            (Color::Colorless, BuildingType::Workshop) => todo!(),
+            (Color::Colorless, BuildingType::Guild) => todo!(),
+            (Color::Colorless, BuildingType::School) => todo!(),
+            (Color::Colorless, BuildingType::University) => todo!(),
+            (Color::Colorless, BuildingType::Palace) => todo!(),
+            (Color::Colorless, BuildingType::Tower) => todo!(),
+            (Color::Colorless, BuildingType::Monument) => todo!(),
         }
     }
 
@@ -266,6 +279,8 @@ impl BuildingIncomeTrack {
 
 #[cfg(test)]
 mod tests {
+    use assert_json_diff::assert_json_include;
+
     use super::*;
 
     #[test]
@@ -277,38 +292,32 @@ mod tests {
     }
 
     #[test]
-    fn income_for_two_workshops() -> Result<()> {
+    fn income_for_two_workshops() {
         let mut track: BuildingIncomeTrack =
             BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop); // Arbitrary color
 
-        track.remove_building()?;
-        track.remove_building()?;
+        track.remove_building().unwrap();
+        track.remove_building().unwrap();
 
         assert_eq!(track.income(), Resources::from(Tools(3)));
-
-        Ok(())
     }
 
     #[test]
-    fn remove_to_many_from_income_track() -> Result<()> {
+    fn remove_to_many_from_income_track() {
         let mut track = BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop);
 
         for _ in 0..9 {
-            track.remove_building()?;
+            track.remove_building().unwrap();
         }
 
         assert!(track.remove_building().is_err());
-
-        Ok(())
     }
 
     #[test]
-    fn put_building_on_track_when_full() -> Result<()> {
+    fn put_building_on_track_when_full() {
         let mut track = BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop);
 
         assert!(track.put_building().is_err());
-
-        Ok(())
     }
 
     #[test]
@@ -334,5 +343,36 @@ mod tests {
 
         // Discipline can't go over the hard limit of 12
         assert_eq!(disc, 12);
+    }
+
+    #[test]
+    fn faction_blessed_has_correct_starting_state() {
+        let blessed = Faction::new(&Race::Blessed, &Color::Colorless);
+        let json = serde_json::to_value(&blessed).unwrap();
+
+        let expected = json!({
+            "race": "Blessed",
+            "color": "Colorless",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 3,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 0,
+            "scholars_cap": 7,
+            "disc_track": [1, 1, 1, 1],
+            "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 5,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
+
+        assert_json_include!(actual: json, expected: expected);
     }
 }

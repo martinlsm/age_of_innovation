@@ -38,10 +38,6 @@ impl PreGame {
             book_actions: new_game_random_book_actions(),
         }
     }
-
-    pub fn select_faction() -> Result<u32> {
-        Ok(0)
-    }
 }
 
 pub struct FactionSelector {
@@ -152,64 +148,56 @@ mod tests {
     }
 
     #[test]
-    fn selected_factions_are_correct_in_number() -> Result<()> {
+    fn selected_factions_are_correct_in_number() {
         for num_players in 2..5 {
             let pregame = PreGame::new_random(num_players);
             let mut selector = FactionSelector::new(&pregame);
 
             for i in 0..num_players {
-                selector.select(i as usize)?;
+                selector.select(i as usize).unwrap();
             }
 
-            let selected = selector.finish()?;
+            let selected = selector.finish().unwrap();
             assert_eq!(selected.len(), num_players as usize);
         }
-
-        Ok(())
     }
 
     #[test]
-    fn finish_faction_selection_prematurely() -> Result<()> {
+    fn finish_faction_selection_prematurely() {
         for num_players in 2..5 {
             let pregame = PreGame::new_random(num_players);
             let mut selector = FactionSelector::new(&pregame);
 
             // Select faction to all players except the two last ones
             for i in 0..(num_players - 2) {
-                selector.select(i as usize)?;
+                selector.select(i as usize).unwrap();
             }
 
             assert!(selector.finish().is_err());
         }
-
-        Ok(())
     }
 
     #[test]
-    fn select_too_many_factions() -> Result<()> {
+    fn select_too_many_factions() {
         for num_players in 2..5 {
             let pregame = PreGame::new_random(num_players);
             let mut selector = FactionSelector::new(&pregame);
 
             for i in 0..num_players {
-                selector.select(i as usize)?;
+                selector.select(i as usize).unwrap();
             }
 
             assert!(selector.select(num_players as usize).is_err());
         }
-
-        Ok(())
     }
 
     #[test]
-    fn select_duplicate_faction() -> Result<()> {
+    fn select_duplicate_faction() {
         let pregame = PreGame::new_random(4);
         let mut selector = FactionSelector::new(&pregame);
 
-        selector.select(0)?;
+        selector.select(0).unwrap();
 
         assert!(selector.select(0).is_err());
-
-        Ok(())
     }
 }
