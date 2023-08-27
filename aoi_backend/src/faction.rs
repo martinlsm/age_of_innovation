@@ -372,7 +372,336 @@ mod tests {
                 "scholars": 1
             },
         });
+        assert_json_include!(actual: json, expected: expected);
+    }
 
+    #[test]
+    fn faction_monks_has_correct_starting_state() {
+        let monks = Faction::new(&Race::Monks, &Color::Colorless);
+        let json = serde_json::to_value(&monks).unwrap();
+
+        let expected = json!({
+            "race": "Monks",
+            "color": "Colorless",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 4,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 0,
+            "scholars_cap": 7,
+            "disc_track": [0, 1, 0, 1],
+            "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 5,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
+        assert_json_include!(actual: json, expected: expected);
+    }
+
+    #[test]
+    fn faction_felines_has_correct_starting_state() {
+        let felines = Faction::new(&Race::Felines, &Color::Colorless);
+        let json = serde_json::to_value(&felines).unwrap();
+
+        let expected = json!({
+            "race": "Felines",
+            "color": "Colorless",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 3,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 0,
+            "scholars_cap": 7,
+            "disc_track": [1, 0, 0, 1],
+            "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 5,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
+        assert_json_include!(actual: json, expected: expected);
+    }
+
+    #[test]
+    fn faction_navigators_has_correct_starting_state() {
+        let navigators = Faction::new(&Race::Navigators, &Color::Colorless);
+        let json = serde_json::to_value(&navigators).unwrap();
+
+        let expected = json!({
+            "race": "Navigators",
+            "color": "Colorless",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 3,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 0,
+            "scholars_cap": 7,
+            "disc_track": [0, 3, 0, 0],
+            "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 5,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
+        assert_json_include!(actual: json, expected: expected);
+    }
+
+    #[test]
+    fn faction_goblins_has_correct_starting_state() {
+        let goblins = Faction::new(&Race::Goblins, &Color::Colorless);
+        let json = serde_json::to_value(&goblins).unwrap();
+
+        let expected = json!({
+            "race": "Goblins",
+            "color": "Colorless",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 4,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 0,
+            "scholars_cap": 7,
+            "disc_track": [1, 0, 1, 0],
+            "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 5,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
+        assert_json_include!(actual: json, expected: expected);
+    }
+
+    #[test]
+    fn faction_omar_has_correct_starting_state() {
+        let omar = Faction::new(&Race::Omar, &Color::Colorless);
+        let json = serde_json::to_value(&omar).unwrap();
+
+        let expected = json!({
+            "race": "Omar",
+            "color": "Colorless",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 3,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 0,
+            "scholars_cap": 7,
+            "disc_track": [1, 0, 1, 0],
+            "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 5,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
+        assert_json_include!(actual: json, expected: expected);
+    }
+
+    #[test]
+    fn faction_illusionists_has_correct_starting_state() {
+        let illusionists = Faction::new(&Race::Illusionists, &Color::Colorless);
+        let json = serde_json::to_value(&illusionists).unwrap();
+
+        let expected = json!({
+            "race": "Illusionists",
+            "color": "Colorless",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 3,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 0,
+            "scholars_cap": 7,
+            "disc_track": [0, 0, 0, 2],
+            "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 5,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
+        assert_json_include!(actual: json, expected: expected);
+    }
+
+    #[test]
+    fn faction_inventors_has_correct_starting_state() {
+        let inventors = Faction::new(&Race::Inventors, &Color::Colorless);
+        let json = serde_json::to_value(&inventors).unwrap();
+
+        let expected = json!({
+            "race": "Inventors",
+            "color": "Colorless",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 3,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 0,
+            "scholars_cap": 7,
+            "disc_track": [0, 0, 0, 0],
+            "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 5,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
+        assert_json_include!(actual: json, expected: expected);
+    }
+
+    #[test]
+    fn faction_philosophers_has_correct_starting_state() {
+        let philosophers = Faction::new(&Race::Philosophers, &Color::Colorless);
+        let json = serde_json::to_value(&philosophers).unwrap();
+
+        let expected = json!({
+            "race": "Philosophers",
+            "color": "Colorless",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 3,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 0,
+            "scholars_cap": 7,
+            "disc_track": [2, 0, 0, 0],
+            "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 5,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
+        assert_json_include!(actual: json, expected: expected);
+    }
+
+    #[test]
+    fn faction_lizards_has_correct_starting_state() {
+        let lizards = Faction::new(&Race::Lizards, &Color::Colorless);
+        let json = serde_json::to_value(&lizards).unwrap();
+
+        let expected = json!({
+            "race": "Lizards",
+            "color": "Colorless",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 3,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 0,
+            "scholars_cap": 7,
+            "disc_track": [0, 0, 0, 0],
+            "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 5,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
+        assert_json_include!(actual: json, expected: expected);
+    }
+
+    #[test]
+    fn faction_psychics_has_correct_starting_state() {
+        let psychics = Faction::new(&Race::Psychics, &Color::Colorless);
+        let json = serde_json::to_value(&psychics).unwrap();
+
+        let expected = json!({
+            "race": "Psychics",
+            "color": "Colorless",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 4,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 0,
+            "scholars_cap": 7,
+            "disc_track": [1, 0, 0, 1],
+            "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 5,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
+        assert_json_include!(actual: json, expected: expected);
+    }
+
+    #[test]
+    fn faction_moles_has_correct_starting_state() {
+        let moles = Faction::new(&Race::Moles, &Color::Colorless);
+        let json = serde_json::to_value(&moles).unwrap();
+
+        let expected = json!({
+            "race": "Moles",
+            "color": "Colorless",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 3,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 0,
+            "scholars_cap": 7,
+            "disc_track": [0, 0, 2, 0],
+            "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 5,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
         assert_json_include!(actual: json, expected: expected);
     }
 }
