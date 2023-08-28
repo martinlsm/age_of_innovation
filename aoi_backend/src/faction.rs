@@ -2,7 +2,7 @@ use std::cmp::min;
 
 use crate::building::BuildingType;
 use crate::common::{
-    Books, Coins, Color, Discipline, Power, Resources, Scholars, Tools, DISCIPLINE_MAX,
+    Books, Coins, Color, Discipline, Resources, Scholars, Tools, DISCIPLINE_MAX,
 };
 use crate::Result;
 
@@ -11,7 +11,6 @@ use crate::power::PowerBowls;
 use crate::race::Race;
 
 use serde::Serialize;
-use serde_json::json;
 
 #[derive(Serialize)]
 pub struct Faction {
@@ -280,6 +279,7 @@ impl BuildingIncomeTrack {
 #[cfg(test)]
 mod tests {
     use assert_json_diff::assert_json_include;
+    use serde_json::json;
 
     use super::*;
 

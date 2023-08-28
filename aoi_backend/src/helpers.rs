@@ -1,9 +1,9 @@
 use crate::{error::create_error, Result};
 
-use std::{collections::HashMap, iter::zip};
+use std::iter::zip;
 
 use itertools::Itertools;
-use serde_json::{json, Map, Number};
+use serde_json::{json, Map};
 
 pub fn contains_duplicates<T: Eq>(vec: &Vec<T>) -> bool {
     for (i, a) in zip(0.., vec) {
