@@ -183,5 +183,5 @@ pub enum Color {
     Green,
     Gray,
     Red,
-    Colorless,
+    Colorless, // For testing
 }

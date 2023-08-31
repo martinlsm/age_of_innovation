@@ -123,6 +123,9 @@ impl Faction {
                 self.incr_disc(Discipline::Engineering, 2);
                 // TODO: Ability
             }
+            Race::Raceless => {
+                // For testing, no bonus
+            }
         }
     }
 
@@ -138,7 +141,7 @@ impl Faction {
             }
             Color::Black => {
                 self.scholars += Scholars(1);
-                self.power = PowerBowls::new(0, 3, 9);
+                self.power = PowerBowls::new(3, 9, 0);
             }
             Color::Blue => {
                 self.sailing_level = 1;
@@ -692,6 +695,96 @@ mod tests {
             "scholars_cap": 7,
             "disc_track": [0, 0, 2, 0],
             "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 5,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
+        assert_json_include!(actual: json, expected: expected);
+    }
+
+    #[test]
+    fn yellow_has_correct_starting_state() {
+        let faction = Faction::new(&Race::Raceless, &Color::Yellow);
+        let json = serde_json::to_value(&faction).unwrap();
+
+        let expected = json!({
+            "race": "Raceless",
+            "color": "Yellow",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 3,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 0,
+            "scholars_cap": 7,
+            "disc_track": [0, 0, 0, 0],
+            "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 5,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
+        assert_json_include!(actual: json, expected: expected);
+    }
+
+    #[test]
+    fn brown_has_correct_starting_state() {
+        let faction = Faction::new(&Race::Raceless, &Color::Brown);
+        let json = serde_json::to_value(&faction).unwrap();
+
+        let expected = json!({
+            "race": "Raceless",
+            "color": "Brown",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 3,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 0,
+            "scholars_cap": 7,
+            "disc_track": [0, 0, 0, 0],
+            "power": [5, 7, 0],
+            "dig_upg_cost": {
+                "tools": 1,
+                "coins": 1,
+                "scholars": 1
+            },
+            "sailing_upg_cost": {
+                "coins": 4,
+                "scholars": 1
+            },
+        });
+        assert_json_include!(actual: json, expected: expected);
+    }
+
+    #[test]
+    fn black_has_correct_starting_state() {
+        let faction = Faction::new(&Race::Raceless, &Color::Black);
+        let json = serde_json::to_value(&faction).unwrap();
+
+        let expected = json!({
+            "race": "Raceless",
+            "color": "Black",
+            "digging_cost": 3,
+            "sailing_level": 0,
+            "tools": 3,
+            "coins": 15,
+            "books": [0, 0, 0, 0],
+            "scholars": 1,
+            "scholars_cap": 7,
+            "disc_track": [0, 0, 0, 0],
+            "power": [3, 9, 0],
             "dig_upg_cost": {
                 "tools": 1,
                 "coins": 5,

@@ -15,4 +15,5 @@ pub enum Race {
     Lizards,
     Psychics,
     Moles,
+    Raceless, // For testing
 }
