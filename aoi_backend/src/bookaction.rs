@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use rand::seq::SliceRandom;
 
-use crate::common::Books;
+use crate::resources::Books;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub struct BookAction {

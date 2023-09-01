@@ -1,14 +1,13 @@
 use std::cmp::min;
 
 use crate::building::BuildingType;
-use crate::common::{
-    Books, Coins, Color, Discipline, Resources, Scholars, Tools, DISCIPLINE_MAX,
-};
+use crate::common::{Color, Discipline, DISCIPLINE_MAX};
 use crate::Result;
 
 use crate::error::create_error;
 use crate::power::PowerBowls;
 use crate::race::Race;
+use crate::resources::{Books, Coins, Power, Resources, Scholars, Tools};
 
 use serde::Serialize;
 
@@ -174,78 +173,62 @@ pub struct BuildingIncomeTrack {
 
 impl BuildingIncomeTrack {
     // TODO: Fill in the rest...
-    pub fn new(color: &Color, building: &BuildingType) -> Self {
+    pub fn new(color: &Color, building: &BuildingType) -> Result<Self> {
         match (color, building) {
-            (Color::Yellow, BuildingType::Workshop) => Self {
+            (Color::Gray, BuildingType::Workshop) => Ok(BuildingIncomeTrack {
                 income_gain: vec![
+                    Resources::from(Tools(1)) + &Resources::from(Coins(2)),
                     Resources::from(Tools(1)),
                     Resources::from(Tools(1)),
                     Resources::from(Tools(1)),
                     Resources::from(Tools(1)),
-                    Resources::from(Tools(1)),
-                    Resources::from(Tools(1)),
+                    Resources::from(Tools(0)),
                     Resources::from(Tools(1)),
                     Resources::from(Tools(1)),
                     Resources::from(Tools(1)),
                     Resources::from(Tools(1)),
                 ],
                 num_occupied: 9,
-            },
-            (Color::Yellow, BuildingType::Guild) => todo!(),
-            (Color::Yellow, BuildingType::School) => todo!(),
-            (Color::Yellow, BuildingType::University) => todo!(),
-            (Color::Yellow, BuildingType::Palace) => todo!(),
-            (Color::Yellow, BuildingType::Tower) => todo!(),
-            (Color::Yellow, BuildingType::Monument) => todo!(),
-            (Color::Brown, BuildingType::Workshop) => todo!(),
-            (Color::Brown, BuildingType::Guild) => todo!(),
-            (Color::Brown, BuildingType::School) => todo!(),
-            (Color::Brown, BuildingType::University) => todo!(),
-            (Color::Brown, BuildingType::Palace) => todo!(),
-            (Color::Brown, BuildingType::Tower) => todo!(),
-            (Color::Brown, BuildingType::Monument) => todo!(),
-            (Color::Black, BuildingType::Workshop) => todo!(),
-            (Color::Black, BuildingType::Guild) => todo!(),
-            (Color::Black, BuildingType::School) => todo!(),
-            (Color::Black, BuildingType::University) => todo!(),
-            (Color::Black, BuildingType::Palace) => todo!(),
-            (Color::Black, BuildingType::Tower) => todo!(),
-            (Color::Black, BuildingType::Monument) => todo!(),
-            (Color::Blue, BuildingType::Workshop) => todo!(),
-            (Color::Blue, BuildingType::Guild) => todo!(),
-            (Color::Blue, BuildingType::School) => todo!(),
-            (Color::Blue, BuildingType::University) => todo!(),
-            (Color::Blue, BuildingType::Palace) => todo!(),
-            (Color::Blue, BuildingType::Tower) => todo!(),
-            (Color::Blue, BuildingType::Monument) => todo!(),
-            (Color::Green, BuildingType::Workshop) => todo!(),
-            (Color::Green, BuildingType::Guild) => todo!(),
-            (Color::Green, BuildingType::School) => todo!(),
-            (Color::Green, BuildingType::University) => todo!(),
-            (Color::Green, BuildingType::Palace) => todo!(),
-            (Color::Green, BuildingType::Tower) => todo!(),
-            (Color::Green, BuildingType::Monument) => todo!(),
-            (Color::Gray, BuildingType::Workshop) => todo!(),
-            (Color::Gray, BuildingType::Guild) => todo!(),
-            (Color::Gray, BuildingType::School) => todo!(),
-            (Color::Gray, BuildingType::University) => todo!(),
-            (Color::Gray, BuildingType::Palace) => todo!(),
-            (Color::Gray, BuildingType::Tower) => todo!(),
-            (Color::Gray, BuildingType::Monument) => todo!(),
-            (Color::Red, BuildingType::Workshop) => todo!(),
-            (Color::Red, BuildingType::Guild) => todo!(),
-            (Color::Red, BuildingType::School) => todo!(),
-            (Color::Red, BuildingType::University) => todo!(),
-            (Color::Red, BuildingType::Palace) => todo!(),
-            (Color::Red, BuildingType::Tower) => todo!(),
-            (Color::Red, BuildingType::Monument) => todo!(),
-            (Color::Colorless, BuildingType::Workshop) => todo!(),
-            (Color::Colorless, BuildingType::Guild) => todo!(),
-            (Color::Colorless, BuildingType::School) => todo!(),
-            (Color::Colorless, BuildingType::University) => todo!(),
-            (Color::Colorless, BuildingType::Palace) => todo!(),
-            (Color::Colorless, BuildingType::Tower) => todo!(),
-            (Color::Colorless, BuildingType::Monument) => todo!(),
+            }),
+            (_, BuildingType::Workshop) => Ok(BuildingIncomeTrack {
+                income_gain: vec![
+                    Resources::from(Tools(1)),
+                    Resources::from(Tools(1)),
+                    Resources::from(Tools(1)),
+                    Resources::from(Tools(1)),
+                    Resources::from(Tools(1)),
+                    Resources::from(Tools(0)),
+                    Resources::from(Tools(1)),
+                    Resources::from(Tools(1)),
+                    Resources::from(Tools(1)),
+                    Resources::from(Tools(1)),
+                ],
+                num_occupied: 9,
+            }),
+            (_, BuildingType::Guild) => Ok(BuildingIncomeTrack {
+                income_gain: vec![
+                    Resources::none(),
+                    Resources::from(Coins(2)) + &Resources::from(Power(1)),
+                    Resources::from(Coins(2)) + &Resources::from(Power(1)),
+                    Resources::from(Coins(2)) + &Resources::from(Power(2)),
+                    Resources::from(Coins(2)) + &Resources::from(Power(2)),
+                ],
+                num_occupied: 4,
+            }),
+            (_, BuildingType::School) => Ok(BuildingIncomeTrack {
+                income_gain: vec![
+                    Resources::none(),
+                    Resources::from(Scholars(1)),
+                    Resources::from(Scholars(1)),
+                    Resources::from(Scholars(1)),
+                ],
+                num_occupied: 3,
+            }),
+            (_, BuildingType::University) => Ok(BuildingIncomeTrack {
+                income_gain: vec![Resources::none(), Resources::from(Scholars(1))],
+                num_occupied: 1,
+            }),
+            _ => Err(create_error("No income track for specified building")),
         }
     }
 
@@ -275,7 +258,7 @@ impl BuildingIncomeTrack {
         self.income_gain
             .iter()
             .take(num_income_slots)
-            .fold(Resources::new(), |a, b| a + b)
+            .fold(Resources::none(), |a, b| a + b)
     }
 }
 
@@ -288,16 +271,14 @@ mod tests {
 
     #[test]
     fn income_for_zero_workshops() {
-        let track: BuildingIncomeTrack =
-            BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop); // Arbitrary color
+        let track = BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop).unwrap(); // Arbitrary color
 
         assert_eq!(track.income(), Resources::from(Tools(1)));
     }
 
     #[test]
     fn income_for_two_workshops() {
-        let mut track: BuildingIncomeTrack =
-            BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop); // Arbitrary color
+        let mut track = BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop).unwrap(); // Arbitrary color
 
         track.remove_building().unwrap();
         track.remove_building().unwrap();
@@ -306,8 +287,31 @@ mod tests {
     }
 
     #[test]
+    fn income_for_nine_workshops() {
+        let mut track = BuildingIncomeTrack::new(&Color::Black, &BuildingType::Workshop).unwrap();
+
+        for _ in 0..9 {
+            track.remove_building().unwrap();
+        }
+
+        assert_eq!(track.income(), Resources::from(Tools(9)));
+    }
+
+    #[test]
+    fn gray_has_extra_gold_income() {
+        let mut track = BuildingIncomeTrack::new(&Color::Gray, &BuildingType::Workshop).unwrap();
+
+        track.remove_building().unwrap();
+
+        assert_eq!(
+            track.income(),
+            Resources::from(Tools(2)) + &Resources::from(Coins(2))
+        );
+    }
+
+    #[test]
     fn remove_to_many_from_income_track() {
-        let mut track = BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop);
+        let mut track = BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop).unwrap();
 
         for _ in 0..9 {
             track.remove_building().unwrap();
@@ -318,7 +322,7 @@ mod tests {
 
     #[test]
     fn put_building_on_track_when_full() {
-        let mut track = BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop);
+        let mut track = BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop).unwrap();
 
         assert!(track.put_building().is_err());
     }

@@ -10,6 +10,7 @@ pub mod helpers;
 pub mod power;
 pub mod pregame;
 pub mod race;
+pub mod resources;
 pub mod scoringtile;
 
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;

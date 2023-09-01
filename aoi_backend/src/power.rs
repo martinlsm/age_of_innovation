@@ -1,7 +1,7 @@
 use std::cmp::min;
 
-use crate::common::{Books, Coins, Scholars, Tools};
 use crate::error::create_error;
+use crate::resources::{Books, Coins, Scholars, Tools};
 use crate::Result;
 
 use serde::ser::SerializeSeq;
