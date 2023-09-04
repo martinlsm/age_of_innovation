@@ -54,6 +54,10 @@ impl Faction {
         faction
     }
 
+    pub fn get_color(&self) -> Color {
+        self.color
+    }
+
     pub fn incr_disc(&mut self, disc: Discipline, amount: u32) -> u32 {
         let track: &mut u32 = &mut self.disc_track[disc as usize];
         *track = min(*track + amount, DISCIPLINE_MAX);

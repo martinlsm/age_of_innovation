@@ -9,14 +9,14 @@ use crate::{
     common::Color,
     error::create_error,
     faction::Faction,
-    gamemap,
+    map,
     race::Race,
     scoringtile, Result,
 };
 
 pub struct PreGame {
     num_players: u32,
-    map: Vec<Vec<gamemap::Hex>>,
+    map: Vec<Vec<map::Hex>>,
     scoring_tiles: Vec<scoringtile::ScoringTile>,
     faction_pool: Rc<FactionPool>,
     leftover_bonuses: Vec<BonusTile>,
@@ -31,7 +31,7 @@ impl PreGame {
 
         PreGame {
             num_players,
-            map: gamemap::open_map(),
+            map: map::open_map(map::MapId::Base),
             scoring_tiles: scoringtile::new_game_random_tiles(),
             faction_pool: Rc::new(faction_pool),
             leftover_bonuses,
@@ -107,93 +107,82 @@ fn gen_random_faction_pool() -> (FactionPool, Vec<BonusTile>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use parameterized::parameterized;
 
-    #[test]
-    fn leftover_bonuses_are_3() {
-        for num_players in 2..5 {
-            let pregame = PreGame::new_random(num_players);
+    #[parameterized(num_players = { 2, 3, 4, 5 })]
+    fn leftover_bonuses_are_3(num_players: u32) {
+        let pregame = PreGame::new_random(num_players);
 
-            assert_eq!(pregame.leftover_bonuses.len(), 3);
-        }
+        assert_eq!(pregame.leftover_bonuses.len(), 3);
     }
 
-    #[test]
-    fn there_are_7_possible_faction_selections() {
-        for num_players in 2..5 {
-            let pregame = PreGame::new_random(num_players);
+    #[parameterized(num_players = { 2, 3, 4, 5 })]
+    fn there_are_7_possible_faction_selections(num_players: u32) {
+        let pregame = PreGame::new_random(num_players);
 
-            assert_eq!(pregame.faction_pool.len(), 7);
-        }
+        assert_eq!(pregame.faction_pool.len(), 7);
     }
 
-    #[test]
-    fn faction_pool_have_no_duplicate_entries() {
-        for num_players in 2..5 {
-            let pregame = PreGame::new_random(num_players);
-            let v = &pregame.faction_pool;
+    #[parameterized(num_players = { 2, 3, 4, 5 })]
+    fn faction_pool_have_no_duplicate_entries(num_players: u32) {
+        let pregame = PreGame::new_random(num_players);
+        let v = &pregame.faction_pool;
 
-            // Check for duplicate races
-            assert!(v
-                .iter()
-                .all(|a| v.iter().filter(|&b| a.0 == b.0).count() == 1));
-            // Check for duplicate bonus tiles
-            assert!(v
-                .iter()
-                .all(|a| v.iter().filter(|&b| a.1 == b.1).count() == 1));
-            // Check for duplicate colors
-            assert!(v
-                .iter()
-                .all(|a| v.iter().filter(|&b| a.2 == b.2).count() == 1));
-        }
+        // Check for duplicate races
+        assert!(v
+            .iter()
+            .all(|a| v.iter().filter(|&b| a.0 == b.0).count() == 1));
+        // Check for duplicate bonus tiles
+        assert!(v
+            .iter()
+            .all(|a| v.iter().filter(|&b| a.1 == b.1).count() == 1));
+        // Check for duplicate colors
+        assert!(v
+            .iter()
+            .all(|a| v.iter().filter(|&b| a.2 == b.2).count() == 1));
     }
 
-    #[test]
-    fn selected_factions_are_correct_in_number() {
-        for num_players in 2..5 {
-            let pregame = PreGame::new_random(num_players);
-            let mut selector = FactionSelector::new(&pregame);
+    #[parameterized(num_players = { 2, 3, 4, 5 })]
+    fn selected_factions_are_correct_in_number(num_players: u32) {
+        let pregame = PreGame::new_random(num_players);
+        let mut selector = FactionSelector::new(&pregame);
 
-            for i in 0..num_players {
-                selector.select(i as usize).unwrap();
-            }
-
-            let selected = selector.finish().unwrap();
-            assert_eq!(selected.len(), num_players as usize);
+        for i in 0..num_players {
+            selector.select(i as usize).unwrap();
         }
+
+        let selected = selector.finish().unwrap();
+        assert_eq!(selected.len(), num_players as usize);
     }
 
-    #[test]
-    fn finish_faction_selection_prematurely() {
-        for num_players in 2..5 {
-            let pregame = PreGame::new_random(num_players);
-            let mut selector = FactionSelector::new(&pregame);
+    #[parameterized(num_players = { 2, 3, 4, 5 })]
+    fn faction_selection_cant_be_finished_prematurely(num_players: u32) {
+        let pregame = PreGame::new_random(num_players);
+        let mut selector = FactionSelector::new(&pregame);
 
-            // Select faction to all players except the two last ones
-            for i in 0..(num_players - 2) {
-                selector.select(i as usize).unwrap();
-            }
-
-            assert!(selector.finish().is_err());
+        // Select faction to all players except the two last ones
+        for i in 0..(num_players - 2) {
+            selector.select(i as usize).unwrap();
         }
+
+        assert!(selector.finish().is_err());
     }
 
-    #[test]
-    fn select_too_many_factions() {
-        for num_players in 2..5 {
-            let pregame = PreGame::new_random(num_players);
-            let mut selector = FactionSelector::new(&pregame);
+    #[parameterized(num_players = { 2, 3, 4, 5 })]
+    fn select_too_many_factions(num_players: u32) {
+        let pregame = PreGame::new_random(num_players);
+        let mut selector = FactionSelector::new(&pregame);
 
-            for i in 0..num_players {
-                selector.select(i as usize).unwrap();
-            }
-
-            assert!(selector.select(num_players as usize).is_err());
+        for i in 0..num_players {
+            selector.select(i as usize).unwrap();
         }
+
+        assert!(selector.select(num_players as usize).is_err());
     }
 
-    #[test]
-    fn select_duplicate_faction() {
-        let pregame = PreGame::new_random(4);
+    #[parameterized(num_players = { 2, 3, 4, 5 })]
+    fn select_duplicate_faction(num_players: u32) {
+        let pregame = PreGame::new_random(num_players);
         let mut selector = FactionSelector::new(&pregame);
 
         selector.select(0).unwrap();

@@ -5,6 +5,9 @@ use crate::{common::Color, error::create_error, Result};
 pub const MAP_HEIGHT: usize = 9;
 pub const MAP_WIDTH: usize = 13;
 
+pub type Map = Vec<Vec<Hex>>;
+pub type Pos = (usize, usize);
+
 pub struct Hex {
     pub name: Option<String>,
     pub terrain: Terrain,
@@ -16,14 +19,26 @@ pub enum Terrain {
     Water,
 }
 
-pub fn open_map() -> Vec<Vec<Hex>> {
-    const BASE_MAP: &str = include_str!("../assets/base_map.gamemap");
-    open_map_from_str(BASE_MAP).unwrap()
+pub enum MapId {
+    Base,
+    Debug,
 }
 
-fn open_map_from_str(input: &str) -> Result<Vec<Vec<Hex>>> {
+pub fn open_map(id: MapId) -> Map {
+    const BASE_MAP: &'static str = include_str!("../assets/base_map.gamemap");
+    const DEBUG_MAP: &'static str = include_str!("../assets/debug_map.gamemap");
+
+    let map: &str = match id {
+        MapId::Base => BASE_MAP,
+        MapId::Debug => DEBUG_MAP,
+    };
+
+    open_map_from_str(map).unwrap()
+}
+
+fn open_map_from_str(input: &str) -> Result<Map> {
     let mut row_name_gen = "ABCDEFGHIJ".chars();
-    let mut res: Vec<Vec<Hex>> = Vec::with_capacity(MAP_HEIGHT);
+    let mut res: Map = Vec::with_capacity(MAP_HEIGHT);
 
     for row in input.split('\n') {
         let row_name = match row_name_gen.next() {
@@ -83,7 +98,7 @@ mod tests {
 
     #[test]
     fn import_basemap() {
-        let map = open_map();
+        let map = open_map(MapId::Base);
 
         assert_eq!(
             (0..MAP_HEIGHT)
