@@ -1,5 +1,5 @@
 use crate::error::create_error;
-use crate::{faction::Faction, map::Hex};
+use crate::faction::Faction;
 use crate::{map, Result};
 
 use crate::common::Color;
@@ -141,22 +141,6 @@ mod tests {
         ];
 
         (placement_order, hex_order)
-    }
-
-    fn place_multiple(
-        placer: &mut BuildingPlacer,
-        num_players: usize,
-        num_to_place: usize,
-    ) -> Result<()> {
-        // This function assumes that placer has not been mutated after its created,
-        // all factions are colorless, and that the used map is MapId::Debug.
-        let (placement_order, hex_order) = valid_place_order_debug_map(num_players);
-
-        for (player_id, pos) in zip(placement_order, hex_order).take(num_to_place) {
-            placer.place(player_id as PlayerId, pos)?;
-        }
-
-        Ok(())
     }
 
     #[parameterized(num_players = { 2, 3, 4, 5 })]
