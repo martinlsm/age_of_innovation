@@ -4,8 +4,8 @@ use crate::{map, Result};
 
 use crate::common::Color;
 
-use crate::gamelogic::incomephase::IncomePhase;
-use crate::gamelogic::PlayerId;
+use crate::gamephase::incomephase::IncomePhase;
+use crate::gamephase::PlayerId;
 
 pub struct BuildingPlacer {
     factions: Vec<Faction>, // Indices map to player IDs
