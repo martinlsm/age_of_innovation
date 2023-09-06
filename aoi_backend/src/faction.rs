@@ -170,16 +170,16 @@ impl Faction {
     }
 }
 
-pub struct BuildingIncomeTrack {
+pub struct IncomeTrack {
     income_gain: Vec<Resources>, // zeroth index is base income (not any buildings placed)
     num_occupied: usize,         // Number of occupied building slots on the income track
 }
 
-impl BuildingIncomeTrack {
+impl IncomeTrack {
     // TODO: Fill in the rest...
     pub fn new(color: &Color, building: &BuildingType) -> Result<Self> {
         match (color, building) {
-            (Color::Gray, BuildingType::Workshop) => Ok(BuildingIncomeTrack {
+            (Color::Gray, BuildingType::Workshop) => Ok(IncomeTrack {
                 income_gain: vec![
                     Resources::from(Tools(1)) + &Resources::from(Coins(2)),
                     Resources::from(Tools(1)),
@@ -194,7 +194,7 @@ impl BuildingIncomeTrack {
                 ],
                 num_occupied: 9,
             }),
-            (_, BuildingType::Workshop) => Ok(BuildingIncomeTrack {
+            (_, BuildingType::Workshop) => Ok(IncomeTrack {
                 income_gain: vec![
                     Resources::from(Tools(1)),
                     Resources::from(Tools(1)),
@@ -209,7 +209,7 @@ impl BuildingIncomeTrack {
                 ],
                 num_occupied: 9,
             }),
-            (_, BuildingType::Guild) => Ok(BuildingIncomeTrack {
+            (_, BuildingType::Guild) => Ok(IncomeTrack {
                 income_gain: vec![
                     Resources::none(),
                     Resources::from(Coins(2)) + &Resources::from(Power(1)),
@@ -219,7 +219,7 @@ impl BuildingIncomeTrack {
                 ],
                 num_occupied: 4,
             }),
-            (_, BuildingType::School) => Ok(BuildingIncomeTrack {
+            (_, BuildingType::School) => Ok(IncomeTrack {
                 income_gain: vec![
                     Resources::none(),
                     Resources::from(Scholars(1)),
@@ -228,7 +228,7 @@ impl BuildingIncomeTrack {
                 ],
                 num_occupied: 3,
             }),
-            (_, BuildingType::University) => Ok(BuildingIncomeTrack {
+            (_, BuildingType::University) => Ok(IncomeTrack {
                 income_gain: vec![Resources::none(), Resources::from(Scholars(1))],
                 num_occupied: 1,
             }),
@@ -275,14 +275,14 @@ mod tests {
 
     #[test]
     fn income_for_zero_workshops() {
-        let track = BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop).unwrap(); // Arbitrary color
+        let track = IncomeTrack::new(&Color::Yellow, &BuildingType::Workshop).unwrap(); // Arbitrary color
 
         assert_eq!(track.income(), Resources::from(Tools(1)));
     }
 
     #[test]
     fn income_for_two_workshops() {
-        let mut track = BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop).unwrap(); // Arbitrary color
+        let mut track = IncomeTrack::new(&Color::Yellow, &BuildingType::Workshop).unwrap(); // Arbitrary color
 
         track.remove_building().unwrap();
         track.remove_building().unwrap();
@@ -292,7 +292,7 @@ mod tests {
 
     #[test]
     fn income_for_nine_workshops() {
-        let mut track = BuildingIncomeTrack::new(&Color::Black, &BuildingType::Workshop).unwrap();
+        let mut track = IncomeTrack::new(&Color::Black, &BuildingType::Workshop).unwrap();
 
         for _ in 0..9 {
             track.remove_building().unwrap();
@@ -303,7 +303,7 @@ mod tests {
 
     #[test]
     fn gray_has_extra_gold_income() {
-        let mut track = BuildingIncomeTrack::new(&Color::Gray, &BuildingType::Workshop).unwrap();
+        let mut track = IncomeTrack::new(&Color::Gray, &BuildingType::Workshop).unwrap();
 
         track.remove_building().unwrap();
 
@@ -315,7 +315,7 @@ mod tests {
 
     #[test]
     fn remove_to_many_from_income_track() {
-        let mut track = BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop).unwrap();
+        let mut track = IncomeTrack::new(&Color::Yellow, &BuildingType::Workshop).unwrap();
 
         for _ in 0..9 {
             track.remove_building().unwrap();
@@ -326,7 +326,7 @@ mod tests {
 
     #[test]
     fn put_building_on_track_when_full() {
-        let mut track = BuildingIncomeTrack::new(&Color::Yellow, &BuildingType::Workshop).unwrap();
+        let mut track = IncomeTrack::new(&Color::Yellow, &BuildingType::Workshop).unwrap();
 
         assert!(track.put_building().is_err());
     }
