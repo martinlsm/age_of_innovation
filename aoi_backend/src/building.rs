@@ -1,4 +1,4 @@
-pub enum BuildingType {
+pub enum Building {
     Workshop,
     Guild,
     School,
