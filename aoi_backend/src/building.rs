@@ -1,4 +1,5 @@
-pub enum BuildingType {
+#[derive(Debug, Eq, PartialEq)]
+pub enum Building {
     Workshop,
     Guild,
     School,

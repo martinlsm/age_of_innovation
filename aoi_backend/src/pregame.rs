@@ -9,18 +9,14 @@ use crate::{
     common::Color,
     error::create_error,
     faction::Faction,
+    game::Data,
     map,
     race::Race,
     scoringtile, Result,
 };
 
 pub struct PreGame {
-    num_players: u32,
-    map: Vec<Vec<map::Hex>>,
-    scoring_tiles: Vec<scoringtile::ScoringTile>,
-    faction_pool: Rc<FactionPool>,
-    leftover_bonuses: Vec<BonusTile>,
-    book_actions: Vec<BookAction>,
+    game_data: Data,
 }
 
 type FactionPool = Vec<(Race, BonusTile, Color)>;
@@ -30,12 +26,12 @@ impl PreGame {
         let (faction_pool, leftover_bonuses) = gen_random_faction_pool();
 
         PreGame {
-            num_players,
-            map: map::open_map(map::MapId::Base),
-            scoring_tiles: scoringtile::new_game_random_tiles(),
-            faction_pool: Rc::new(faction_pool),
-            leftover_bonuses,
-            book_actions: new_game_random_book_actions(),
+            game_data: Data {
+                num_players,
+                map: map::open_map(map::MapId::Base),
+                faction_pool: Rc::new(faction_pool),
+                leftover_bonuses,
+            },
         }
     }
 }
@@ -50,8 +46,8 @@ impl FactionSelector {
     pub fn new(pregame: &PreGame) -> Self {
         FactionSelector {
             selected: Vec::new(),
-            faction_pool: pregame.faction_pool.clone(),
-            num_players: pregame.num_players,
+            faction_pool: pregame.game_data.faction_pool.clone(),
+            num_players: pregame.game_data.num_players,
         }
     }
 
@@ -113,20 +109,20 @@ mod tests {
     fn leftover_bonuses_are_3(num_players: u32) {
         let pregame = PreGame::new_random(num_players);
 
-        assert_eq!(pregame.leftover_bonuses.len(), 3);
+        assert_eq!(pregame.game_data.leftover_bonuses.len(), 3);
     }
 
     #[parameterized(num_players = { 2, 3, 4, 5 })]
     fn there_are_7_possible_faction_selections(num_players: u32) {
         let pregame = PreGame::new_random(num_players);
 
-        assert_eq!(pregame.faction_pool.len(), 7);
+        assert_eq!(pregame.game_data.faction_pool.len(), 7);
     }
 
     #[parameterized(num_players = { 2, 3, 4, 5 })]
     fn faction_pool_have_no_duplicate_entries(num_players: u32) {
         let pregame = PreGame::new_random(num_players);
-        let v = &pregame.faction_pool;
+        let v = &pregame.game_data.faction_pool;
 
         // Check for duplicate races
         assert!(v

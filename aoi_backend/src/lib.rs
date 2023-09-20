@@ -5,6 +5,7 @@ pub mod building;
 pub mod common;
 pub mod error;
 pub mod faction;
+pub mod game;
 pub mod gamephase;
 pub mod helpers;
 pub mod map;
